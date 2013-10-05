@@ -3,21 +3,25 @@ lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'resqued/version'
 
-Gem::Specification.new do |spec|
-  spec.name          = 'resqued'
-  spec.version       = Resqued::VERSION
-  spec.authors       = ['Mila Jacob Stetser']
-  spec.email         = ['jake@wideopenspac.es']
-  spec.summary       = %q{Autoscaling pool manager for resque workers.}
-  spec.description   = spec.summary + %q{ Enables dynamic worker pool management based on queue size, worker stats and other important variables. }
-  spec.homepage      = 'https://github.com/wideopenspaces/resqued'
-  spec.license       = 'MIT'
+Gem::Specification.new do |s|
+  s.name          = 'resqued'
+  s.version       = Resqued::VERSION
+  s.authors       = ['Mila Jacob Stetser']
+  s.email         = ['jake@wideopenspac.es']
+  s.summary       = %q{Autoscaling pool manager for resque workers.}
+  s.description   = s.summary + %q{ Enables dynamic worker pool management based on queue size, worker stats and other important variables. }
+  s.homepage      = 'https://github.com/wideopenspaces/resqued'
+  s.license       = 'MIT'
 
-  spec.files         = `git ls-files`.split($/)
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
-  spec.require_paths = ['lib']
+  s.files         = `git ls-files`.split($/)
+  s.executables   = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  s.test_files    = s.files.grep(%r{^(test|spec|features)/})
+  s.require_paths = ['lib']
 
-  spec.add_development_dependency 'bundler', '~> 1.3'
-  spec.add_development_dependency 'rake'
+  s.add_development_dependency 'bundler', '~> 1.3'
+  s.add_development_dependency 'rake'
+  s.add_development_dependency 'minitest', '~> 4.7.5'
+  s.add_development_dependency 'minitest-spec-context'
+
+  s.add_dependency 'resque', ['>= 1.15.0', '< 2.0']
 end

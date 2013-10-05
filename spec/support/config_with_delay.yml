@@ -1,0 +1,15 @@
+delay: 60
+workers:
+  indexing:
+    wait_time: 120
+    threshold: 100
+    spawn_rate: 1
+    remove_when_idle: true
+    queues:
+      - queue_the_first
+      - queue_tee_pie
+      - queue_the_music
+    pool:
+      min: 2
+      max: 5
+      first_at: 1
