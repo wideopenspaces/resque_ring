@@ -15,6 +15,7 @@ Autoscaling pool manager for resque workers.
 * Automatically manages and keeps track of workers it spawns
 * Track jobs processed, age & other data for each worker
 * Communicates with workers through Resque/Redis
+* Manages worker pool sizes locally (1 server) and globally (across servers)
 
 ### Later releases
 
@@ -41,6 +42,7 @@ workers:
       - queue_tee_pie
       - queue_the_music
     pool:
+      global_max: 15 # Max workers across all servers; default 0 (no limit)
       min: 1 # How many to start initially, 0 means no workers until queue; defaults to 1
       max: 5 # The most we'll ever start; defaults to 5
       first_at: 1  # Use with min_workers 0; fewer than fire_at jobs in queue will not start any workers. Defaults to 1, and is only checked if min_workers is 0
