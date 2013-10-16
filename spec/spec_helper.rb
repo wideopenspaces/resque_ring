@@ -1,3 +1,4 @@
+require 'pry'
 require 'resque'
 require 'resqued'
 require 'minitest/spec'

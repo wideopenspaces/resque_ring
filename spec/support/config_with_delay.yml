@@ -10,6 +10,7 @@ workers:
       - queue_tee_pie
       - queue_the_music
     pool:
+      global_max: 15
       min: 2
       max: 5
       first_at: 1
