@@ -30,6 +30,10 @@ module Resque
           @spawn_command ||= @options['spawner']['command']
         end
 
+        def spawner
+          spawn_command.collect { |c| c.gsub('{{queues}}', "QUEUES=#{queues.join(',')}") }
+        end
+
         def threshold
           @options['threshold'] || 100
         end
@@ -40,6 +44,10 @@ module Resque
 
         def work_dir
           @work_dir ||= @options['spawner']['dir']
+        end
+
+        def worker_options
+          { spawner: spawner, env: environment, cwd: work_dir }
         end
 
         def pool

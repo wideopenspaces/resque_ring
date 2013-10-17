@@ -29,6 +29,13 @@ module Resque
         def min
           @options['min'] || 1
         end
+        def spawn!
+          Resque::Plugins::Resqued::Worker.new(worker_options)
+        end
+
+        def worker_options
+          worker_group.worker_options.merge({ pool: self })
+        end
       end
     end
   end

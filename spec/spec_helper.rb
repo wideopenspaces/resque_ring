@@ -1,5 +1,8 @@
 require 'pry'
-require 'resque'
+require 'yaml'
+require 'mocha/setup'
+
+# require 'resque'
 require 'resqued'
 require 'minitest/spec'
 require 'minitest/autorun'

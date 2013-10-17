@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'yaml'
 
 describe Resque::Plugins::Resqued::WorkerGroup do
   let(:mgr) { Resque::Plugins::Resqued::Manager.new({}) }
@@ -34,8 +33,8 @@ describe Resque::Plugins::Resqued::WorkerGroup do
 
   context 'with a provided configuration' do
     let(:options) { ::YAML.load_file('./spec/support/config_with_delay.yml')['workers']['indexing'] }
-
-    subject { Resque::Plugins::Resqued::WorkerGroup.new('indexing', options) }
+    let(:wg) { Resque::Plugins::Resqued::WorkerGroup.new('indexing', options) }
+    subject { wg }
 
     it 'knows its spawn command' do
       subject.spawn_command.must_equal options['spawner']['command']
@@ -74,7 +73,6 @@ describe Resque::Plugins::Resqued::WorkerGroup do
     end
 
     context 'when #manage! is called' do
-      let(:wg) { Resque::Plugins::Resqued::WorkerGroup.new('indexing', options) }
       let(:pool) { MiniTest::Mock.new }
 
       before do
@@ -89,6 +87,33 @@ describe Resque::Plugins::Resqued::WorkerGroup do
       after { pool.verify }
     end
 
+    context '#worker_options' do
+      subject { wg.worker_options }
+
+      it 'includes the proper keys' do
+        subject.keys.must_equal [:spawner, :env, :cwd]
+      end
+
+      it 'includes a spawner' do
+        subject[:spawner].must_equal wg.spawner
+      end
+
+      it 'includes env' do
+        subject[:env].must_equal wg.environment
+      end
+
+      it 'includes cwd' do
+        subject[:cwd].must_equal wg.work_dir
+      end
+    end
+
+    context '#spawner' do
+      context 'if command includes {{queues}}' do
+        it 'returns spawn command with queues inserted' do
+          subject.spawner.must_equal options['spawner']['command'].each { |c| c.gsub!("{{queues}}", "QUEUES=#{subject.queues.join(',')}") }
+        end
+      end
+    end
   end
 end
 
