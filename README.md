@@ -2,6 +2,7 @@ resqued
 ==============
 
 [![Build Status](https://travis-ci.org/wideopenspaces/resqued.png?branch=master)](https://travis-ci.org/wideopenspaces/resqued)
+[![Code Climate](https://codeclimate.com/github/wideopenspaces/resqued.png)](https://codeclimate.com/github/wideopenspaces/resqued)
 
 Autoscaling pool manager for resque workers.
 
