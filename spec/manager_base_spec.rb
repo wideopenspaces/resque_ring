@@ -39,7 +39,7 @@ describe Resque::Plugins::Resqued::Manager do
 
 
           it 'is a WorkerGroup' do
-            subject.class.must_equal Resque::Plugins::Resqued::WorkerGroup
+            subject.must_be_instance_of Resque::Plugins::Resqued::WorkerGroup
           end
 
           it 'is named with its key' do

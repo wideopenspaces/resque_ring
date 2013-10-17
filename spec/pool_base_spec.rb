@@ -1,10 +1,16 @@
 require 'spec_helper'
 
 describe Resque::Plugins::Resqued::Pool do
-  context 'with no provided configuration' do
-    let(:options) { Hash.new }
-    subject { Resque::Plugins::Resqued::Pool.new(options) }
+  let(:worker_group) { Resque::Plugins::Resqued::WorkerGroup.new({}) }
+  let(:options) { Hash.new.merge('worker_group' => worker_group) }
 
+  subject { Resque::Plugins::Resqued::Pool.new(options) }
+
+  it 'stores a reference to its worker_group' do
+    subject.worker_group.must_equal worker_group
+  end
+
+  context 'with no provided configuration' do
     it 'defaults to a global_max of 0' do
       subject.global_max.must_equal 0
     end

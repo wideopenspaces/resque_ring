@@ -11,7 +11,6 @@ module Resque
           @worker_groups = {}
 
           config = load_config_file(options[:config]) if options[:config]
-
         end
 
         def run!
@@ -33,7 +32,7 @@ module Resque
 
         def set_worker_groups(groups)
           groups.each do |name, options|
-            @worker_groups[name] = WorkerGroup.new(name, options)
+            @worker_groups[name] = WorkerGroup.new(name, options.merge(manager: self))
           end
         end
       end

@@ -2,7 +2,10 @@ module Resque
   module Plugins
     module Resqued
       class Pool
+        attr_reader :worker_group
+
         def initialize(options)
+          @worker_group = options.delete('worker_group')
           @options = options
         end
 

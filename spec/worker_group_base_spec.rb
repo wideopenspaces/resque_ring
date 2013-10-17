@@ -1,10 +1,15 @@
 require 'spec_helper'
 
 describe Resque::Plugins::Resqued::WorkerGroup do
-  context 'with no provided configuration' do
-    let(:options) { Hash.new }
-    subject { Resque::Plugins::Resqued::WorkerGroup.new('indexing', options) }
+  let(:mgr) { Resque::Plugins::Resqued::Manager.new({}) }
+  let(:options) { Hash.new.merge('manager' => mgr) }
+  subject { Resque::Plugins::Resqued::WorkerGroup.new('indexing', options) }
 
+  it 'stores a reference to its manager' do
+    subject.manager.must_equal mgr
+  end
+
+  context 'with no provided configuration' do
     it 'defaults to a wait_time of 60' do
       subject.wait_time.must_equal 60
     end
@@ -56,7 +61,7 @@ describe Resque::Plugins::Resqued::WorkerGroup do
     end
 
     it 'creates a Pool' do
-      subject.pool.class.must_equal Resque::Plugins::Resqued::Pool
+      subject.pool.must_be_instance_of Resque::Plugins::Resqued::Pool
     end
   end
 end

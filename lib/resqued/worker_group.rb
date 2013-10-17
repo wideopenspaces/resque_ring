@@ -2,10 +2,11 @@ module Resque
   module Plugins
     module Resqued
       class WorkerGroup
-        attr_reader :name
+        attr_reader :name, :manager
 
         def initialize(name, options = {})
           @name = name
+          @manager = options.delete('manager')
           @options = options
         end
 
@@ -26,7 +27,8 @@ module Resque
         end
 
         def pool
-          @pool ||= Resque::Plugins::Resqued::Pool.new(@options['pool'])
+          @options['pool'] ||= {}
+          @pool ||= Resque::Plugins::Resqued::Pool.new(@options['pool'].merge('worker_group' => self))
         end
       end
     end
