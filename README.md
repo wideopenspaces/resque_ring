@@ -1,6 +1,8 @@
 resqued
 ==============
 
+[![Build Status](https://travis-ci.org/wideopenspaces/resqued.png?branch=master)](https://travis-ci.org/wideopenspaces/resqued)
+
 Autoscaling pool manager for resque workers.
 
 ## Planned features
