@@ -3,11 +3,35 @@ require 'spec_helper'
 describe Resque::Plugins::Resqued::Pool do
   let(:worker_group) { Resque::Plugins::Resqued::WorkerGroup.new({}) }
   let(:options) { Hash.new.merge('worker_group' => worker_group) }
+  let(:pool) { Resque::Plugins::Resqued::Pool.new(options) }
 
-  subject { Resque::Plugins::Resqued::Pool.new(options) }
+  subject { pool }
 
   it 'stores a reference to its worker_group' do
     subject.worker_group.must_equal worker_group
+  end
+
+  describe '#spawn!' do
+    before do
+      worker = Resque::Plugins::Resqued::Worker.new(pool: pool)
+
+      pool.worker_group.expects(:worker_options).at_least_once.returns({})
+      Resque::Plugins::Resqued::Worker.expects(:new).with(pool: pool).returns(worker)
+      pool.expects(:register).with(worker).returns(true)
+      worker.expects(:alive?).returns(true)
+    end
+
+    it 'creates a new worker' do
+      pool.send(:spawn!)
+    end
+
+    it 'checks to see if the worker is alive' do
+      pool.send(:spawn!)
+    end
+
+    it 'registers the worker into the pool' do
+      pool.send(:spawn!)
+    end
   end
 
   context 'with no provided configuration' do
@@ -37,19 +61,19 @@ describe Resque::Plugins::Resqued::Pool do
     } }
     subject { Resque::Plugins::Resqued::Pool.new(options) }
 
-    it 'sets a global_max of 15' do
+    it 'sets proper global_max' do
       subject.global_max.must_equal options['global_max']
     end
 
-    it 'sets a min size of 2' do
+    it 'sets proper min size' do
       subject.min.must_equal options['min']
     end
 
-    it 'sets a max size of 4' do
+    it 'sets proper max size' do
       subject.max.must_equal options['max']
     end
 
-    it 'sets a first_at of 10' do
+    it 'sets proper first_at' do
       subject.first_at.must_equal options['first_at']
     end
   end

@@ -52,7 +52,6 @@ describe Resque::Plugins::Resqued::Worker do
             worker.stop
           end
         end
-
       end
     end
   end

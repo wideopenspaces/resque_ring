@@ -2,9 +2,10 @@ module Resque
   module Plugins
     module Resqued
       class Pool
-        attr_reader :worker_group
+        attr_reader :worker_group, :workers
 
         def initialize(options)
+          @workers = []
           @worker_group = options.delete('worker_group')
           @options = options
         end
@@ -29,8 +30,17 @@ module Resque
         def min
           @options['min'] || 1
         end
+
+        def register(pid)
+          # store pid in redis
+          # increment pool size
+        end
+
+        private
+
         def spawn!
-          Resque::Plugins::Resqued::Worker.new(worker_options)
+          worker = Resque::Plugins::Resqued::Worker.new(worker_options)
+          register(worker) if worker.alive?
         end
 
         def worker_options

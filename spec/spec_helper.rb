@@ -1,6 +1,6 @@
 require 'pry'
 require 'yaml'
-require 'mocha/setup'
+
 
 # require 'resque'
 require 'resqued'
@@ -10,3 +10,5 @@ require 'minitest/pride'
 
 require 'minitest-spec-context'
 require 'minitest/hell'
+
+require 'mocha/setup'
