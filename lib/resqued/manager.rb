@@ -14,6 +14,13 @@ module Resque
         end
 
         def run!
+          manage!
+          # sleep delay
+          # run!
+        end
+
+        def manage!
+          worker_groups.each_value { |wg| wg.manage! }
         end
 
         private

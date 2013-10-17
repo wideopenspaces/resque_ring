@@ -17,6 +17,11 @@ module Resque
           @options['global_max'] || 0
         end
 
+        def manage!
+          # despawn_if_necessary
+          # spawn_if_necessary
+        end
+
         def max
           @options['max'] || 5
         end

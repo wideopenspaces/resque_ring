@@ -37,7 +37,6 @@ describe Resque::Plugins::Resqued::Manager do
         context 'creates a WorkerGroup' do
           subject { mgr.worker_groups['indexing'] }
 
-
           it 'is a WorkerGroup' do
             subject.must_be_instance_of Resque::Plugins::Resqued::WorkerGroup
           end
@@ -45,6 +44,26 @@ describe Resque::Plugins::Resqued::Manager do
           it 'is named with its key' do
             subject.name.must_equal 'indexing'
           end
+        end
+      end
+
+      context 'on manage!' do
+        let(:mgr) { Resque::Plugins::Resqued::Manager.new(config: config) }
+        let(:wkgrp) { MiniTest::Mock.new }
+        let(:wkgrp_two) { MiniTest::Mock.new }
+        let(:worker_groups) { { 'test' => wkgrp, 'me' => wkgrp_two } }
+
+        before do
+          mgr.instance_variable_set(:@worker_groups, worker_groups)
+          worker_groups.each_value { |wg| wg.expect(:manage!, true) }
+        end
+
+        it 'tells worker groups to manage themselves' do
+          mgr.manage! # actual assertions happen in before/after here
+        end
+
+        after do
+          worker_groups.each_value { |wg| wg.verify }
         end
       end
     end

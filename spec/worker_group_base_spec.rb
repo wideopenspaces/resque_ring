@@ -63,6 +63,23 @@ describe Resque::Plugins::Resqued::WorkerGroup do
     it 'creates a Pool' do
       subject.pool.must_be_instance_of Resque::Plugins::Resqued::Pool
     end
+
+    context 'when #manage! is called' do
+      let(:wg) { Resque::Plugins::Resqued::WorkerGroup.new('indexing', options) }
+      let(:pool) { MiniTest::Mock.new }
+
+      before do
+        wg.instance_variable_set(:@pool, pool)
+        pool.expect(:manage!, true)
+      end
+
+      it 'tells its pool to manage itself' do
+        wg.manage!
+      end
+
+      after { pool.verify }
+    end
+
   end
 end
 

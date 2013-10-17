@@ -10,6 +10,10 @@ module Resque
           @options = options
         end
 
+        def manage!
+          pool.manage!
+        end
+
         def queues
           @options['queues'] || []
         end
