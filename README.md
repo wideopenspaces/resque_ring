@@ -36,6 +36,11 @@ resque: url to redis/resque installation
 delay: 60 # seconds to wait before checking again
 workers:
   indexing:
+    spawner:
+      command: bundle exec rake resque:work
+      dir: /this/is/my/work/dir
+      env:
+        rails_env: development
     wait_time: 120 # don't start another worker more often than this (seconds); will only ever start one worker per configured queue within time set above in delay
     threshold: 100# If queue gets bigger than this, start another worker until max workers reached
     spawn_rate: 1 # How many workers to spawn at a time, defaults to 1

@@ -1,6 +1,11 @@
 delay: 60
 workers:
   indexing:
+    spawner:
+      command: bundle exec rake resque:work
+      dir: /my/work/dir
+      env:
+        rails_env: development
     wait_time: 120
     threshold: 100
     spawn_rate: 1

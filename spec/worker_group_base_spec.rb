@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'yaml'
 
 describe Resque::Plugins::Resqued::WorkerGroup do
   let(:mgr) { Resque::Plugins::Resqued::Manager.new({}) }
@@ -32,23 +33,31 @@ describe Resque::Plugins::Resqued::WorkerGroup do
   end
 
   context 'with a provided configuration' do
-    let(:options) { {
-      'wait_time'   => 120,
-      'spawn_rate'  => 2,
-      'threshold'   => 10,
-      'queues'      => %w(queue1, queue2, queue3) }
-    }
+    let(:options) { ::YAML.load_file('./spec/support/config_with_delay.yml')['workers']['indexing'] }
+
     subject { Resque::Plugins::Resqued::WorkerGroup.new('indexing', options) }
 
-    it 'sets a wait_time of 120' do
+    it 'knows its spawn command' do
+      subject.spawn_command.must_equal options['spawner']['command']
+    end
+
+    it 'knows its work dir' do
+      subject.work_dir.must_equal options['spawner']['dir']
+    end
+
+    it 'knows its environment variables' do
+      subject.environment.must_equal options['spawner']['env']
+    end
+
+    it 'sets proper wait_time' do
       subject.wait_time.must_equal options['wait_time']
     end
 
-    it 'sets a queue threshold of 10' do
+    it 'sets proper queue threshold' do
       subject.threshold.must_equal options['threshold']
     end
 
-    it 'sets a spawn_rate of 2' do
+    it 'sets proper spawn_rate' do
       subject.spawn_rate.must_equal options['spawn_rate']
     end
 

@@ -10,6 +10,10 @@ module Resque
           @options = options
         end
 
+        def environment
+          @env ||= @options['spawner']['env']
+        end
+
         def manage!
           pool.manage!
         end
@@ -22,12 +26,20 @@ module Resque
           @options['spawn_rate'] || 1
         end
 
+        def spawn_command
+          @spawn_command ||= @options['spawner']['command']
+        end
+
         def threshold
           @options['threshold'] || 100
         end
 
         def wait_time
           @options['wait_time'] || 60
+        end
+
+        def work_dir
+          @work_dir ||= @options['spawner']['dir']
         end
 
         def pool
