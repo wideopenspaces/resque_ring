@@ -13,24 +13,25 @@ describe Resque::Plugins::Resqued::Pool do
 
   describe '#spawn!' do
     before do
-      worker = Resque::Plugins::Resqued::Worker.new(pool: pool)
+      @worker = Resque::Plugins::Resqued::Worker.new(pool: pool)
 
       pool.worker_group.expects(:worker_options).at_least_once.returns({})
-      Resque::Plugins::Resqued::Worker.expects(:new).with(pool: pool).returns(worker)
-      pool.expects(:register).with(worker).returns(true)
-      worker.expects(:alive?).returns(true)
+      Resque::Plugins::Resqued::Worker.expects(:new).with(pool: pool).returns(@worker)
+      pool.expects(:register).with(@worker).returns(true)
+      @worker.expects(:alive?).returns(true)
     end
 
-    it 'creates a new worker' do
+    # sorry about this, but the actual validations are in the before block.
+    # TODO - refactor
+    it 'creates a new worker, checks to see if it is alive, and registers it' do
       pool.send(:spawn!)
     end
 
-    it 'checks to see if the worker is alive' do
-      pool.send(:spawn!)
-    end
-
-    it 'registers the worker into the pool' do
-      pool.send(:spawn!)
+    after do
+      pool.worker_group.unstub(:worker_options)
+      Resque::Plugins::Resqued::Worker.unstub(:new)
+      pool.unstub(:register)
+      @worker.unstub(:alive?)
     end
   end
 

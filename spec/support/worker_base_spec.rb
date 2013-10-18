@@ -14,12 +14,11 @@ describe Resque::Plugins::Resqued::Worker do
 
       context 'with a spawner given' do
         let(:args) { ['ruby', '-e', 'sleep'] }
-        let(:pmgr) { Object.new }
-        let(:worker) { Resque::Plugins::Resqued::Worker.new(pool: pool, spawner: args, process_mgr: pmgr) }
+        let(:worker) { Resque::Plugins::Resqued::Worker.new(pool: pool, spawner: args ) }
         let(:process) { ChildProcess.new }
 
         before do
-          pmgr.expects(:build).with(*args).returns(process)
+          ChildProcess.expects(:build).with(*args).returns(process)
         end
 
         it 'will build the process given in the spawner' do

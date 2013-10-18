@@ -31,7 +31,7 @@ GEM
     lumberjack (1.0.4)
     metaclass (0.0.1)
     method_source (0.8.2)
-    minitest (4.7.5)
+    minitest (5.0.8)
     minitest-spec-context (0.0.3)
     mocha (0.13.3)
       metaclass (~> 0.0.1)
@@ -75,7 +75,7 @@ DEPENDENCIES
   bundler (~> 1.3)
   guard
   guard-minitest
-  minitest (~> 4.7.5)
+  minitest (~> 5.0.0)
   minitest-spec-context
   mocha
   pry

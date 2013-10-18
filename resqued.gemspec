@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rake'
   s.add_development_dependency 'guard'
   s.add_development_dependency 'guard-minitest'
-  s.add_development_dependency 'minitest', '~> 4.7.5'
+  s.add_development_dependency 'minitest', '~> 5.0.0'
   s.add_development_dependency 'minitest-spec-context'
   s.add_development_dependency 'pry'
   s.add_development_dependency 'mocha'
