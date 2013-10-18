@@ -3,8 +3,8 @@ require 'yaml'
 
 # require 'resque'
 require 'resqued'
-require 'minitest/spec'
 require 'minitest/autorun'
+require 'minitest/spec'
 require 'minitest/pride'
 require 'minitest/hell'
 
