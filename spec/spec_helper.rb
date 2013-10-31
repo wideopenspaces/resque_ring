@@ -3,6 +3,7 @@ require 'yaml'
 
 # require 'resque'
 require 'resqued'
+require 'minitest'
 require 'minitest/autorun'
 require 'minitest/spec'
 require 'minitest/pride'
