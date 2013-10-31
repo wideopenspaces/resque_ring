@@ -4,7 +4,7 @@ require 'resque'
 require 'resque/server'
 
 require 'hattr_accessor/hattr_accessor'
-require 'yambol/yambol'
+require 'yambol'
 
 require 'resqued/worker'
 require 'resqued/pool'
