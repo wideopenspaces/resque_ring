@@ -3,7 +3,8 @@ $LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__) + '/../lib'))
 require 'resque'
 require 'resque/server'
 
-require 'hattr_reader/hattr_reader'
+require 'hattr_accessor/hattr_accessor'
+require 'yambol/yambol'
 
 require 'resqued/worker'
 require 'resqued/pool'

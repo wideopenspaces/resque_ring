@@ -23,7 +23,7 @@ describe Resque::Plugins::Resqued::Manager do
       end
 
       it 'appropriately sets the worker_groups collection' do
-        subject.worker_groups.keys.must_include('indexing')
+        subject.worker_groups.keys.must_include(:indexing)
       end
 
       context 'with a worker group called indexing' do
@@ -31,11 +31,11 @@ describe Resque::Plugins::Resqued::Manager do
         subject { mgr.worker_groups }
 
         it 'contains a worker group called indexing' do
-          subject['indexing'].wont_be_nil
+          subject[:indexing].wont_be_nil
         end
 
         context 'creates a WorkerGroup' do
-          subject { mgr.worker_groups['indexing'] }
+          subject { mgr.worker_groups[:indexing] }
 
           it 'is a WorkerGroup' do
             subject.must_be_instance_of Resque::Plugins::Resqued::WorkerGroup

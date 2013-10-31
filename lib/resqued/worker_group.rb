@@ -2,19 +2,19 @@ module Resque
   module Plugins
     module Resqued
       class WorkerGroup
-        extend HattrReader
+        extend HattrAccessor
 
         attr_reader :name, :manager
-        hattr_reader :options, 'queues', 'spawn_rate', 'threshold', 'wait_time'
+        hattr_reader :options, :queues, :spawn_rate, :threshold, :wait_time
 
         def initialize(name, options = {})
-          @name = name
-          @manager = options.delete('manager')
+          @name = name.to_s
+          @manager = options.delete(:manager)
           @options = defaults.merge(options)
         end
 
         def environment
-          @env ||= @options['spawner']['env']
+          @env ||= @options[:spawner][:env]
         end
 
         def manage!
@@ -22,7 +22,7 @@ module Resque
         end
 
         def spawn_command
-          @spawn_command ||= @options['spawner']['command']
+          @spawn_command ||= @options[:spawner][:command]
         end
 
         def spawner
@@ -31,7 +31,7 @@ module Resque
 
 
         def work_dir
-          @work_dir ||= @options['spawner']['dir']
+          @work_dir ||= @options[:spawner][:dir]
         end
 
         def worker_options
@@ -39,18 +39,18 @@ module Resque
         end
 
         def pool
-          @options['pool'] ||= {}
-          @pool ||= Resque::Plugins::Resqued::Pool.new(@options['pool'].merge('worker_group' => self))
+          @pool ||= Resque::Plugins::Resqued::Pool.new(@options[:pool].merge(worker_group: self))
         end
 
         private
 
         def defaults
           {
-            'queues'      => [],
-            'spawn_rate'  => 1,
-            'threshold'   => 100,
-            'wait_time'   => 60
+            queues:      [],
+            spawn_rate:  1,
+            threshold:   100,
+            wait_time:   60,
+            pool:        {}
           }
         end
       end

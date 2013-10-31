@@ -26,10 +26,10 @@ module Resque
         private
 
         def load_config_file(config)
-          @config_file ||= ::YAML.load_file(config)
+          @config_file ||= Yambol.load_file(config)
           if @config_file
-            set_delay(@config_file['delay'])
-            set_worker_groups(@config_file['workers'])
+            set_delay(@config_file[:delay])
+            set_worker_groups(@config_file[:workers])
           end
         end
 
@@ -46,3 +46,4 @@ module Resque
     end
   end
 end
+

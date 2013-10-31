@@ -2,14 +2,14 @@ module Resque
   module Plugins
     module Resqued
       class Pool
-        extend HattrReader
+        extend HattrAccessor
 
         attr_reader   :worker_group, :workers
-        hattr_reader  :options, 'first_at', 'global_max', 'max', 'min'
+        hattr_reader  :options, :first_at, :global_max, :max, :min
 
         def initialize(options)
           @workers = []
-          @worker_group = options.delete('worker_group')
+          @worker_group = options.delete(:worker_group)
           @options = defaults.merge(options)
         end
 
@@ -27,10 +27,10 @@ module Resque
 
         def defaults
           {
-            'first_at'    => 1,
-            'global_max'  => 0,
-            'max'         => 5,
-            'min'         => 1
+            first_at:    1,
+            global_max:  0,
+            max:         5,
+            min:         1
           }
         end
 
