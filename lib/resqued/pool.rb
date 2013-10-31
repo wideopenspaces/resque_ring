@@ -2,33 +2,20 @@ module Resque
   module Plugins
     module Resqued
       class Pool
-        attr_reader :worker_group, :workers
+        extend HattrReader
+
+        attr_reader   :worker_group, :workers
+        hattr_reader  :options, 'first_at', 'global_max', 'max', 'min'
 
         def initialize(options)
           @workers = []
           @worker_group = options.delete('worker_group')
-          @options = options
-        end
-
-        def first_at
-          @options['first_at'] || 1
-        end
-
-        def global_max
-          @options['global_max'] || 0
+          @options = defaults.merge(options)
         end
 
         def manage!
           # despawn_if_necessary
           # spawn_if_necessary
-        end
-
-        def max
-          @options['max'] || 5
-        end
-
-        def min
-          @options['min'] || 1
         end
 
         def register(pid)
@@ -37,6 +24,15 @@ module Resque
         end
 
         private
+
+        def defaults
+          {
+            'first_at'    => 1,
+            'global_max'  => 0,
+            'max'         => 5,
+            'min'         => 1
+          }
+        end
 
         def spawn!
           worker = Resque::Plugins::Resqued::Worker.new(worker_options)
