@@ -4,3 +4,4 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'yambol', git: 'git://github.com/wideopenspaces/yambol.git'
+gem 'coveralls', require: false
