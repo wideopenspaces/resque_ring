@@ -14,6 +14,9 @@ describe Resque::Plugins::Resqued::Pool do
 
   context 'through the registry' do
     let(:worker) { Resque::Plugins::Resqued::Worker.new(pool: pool) }
+    let(:fake_pid) { 1001 }
+    let(:localized_pid) { "#{manager.registry.host}:1001" }
+
     it 'can tell how many workers are active' do
       subject.current_workers.must_equal(0)
     end
@@ -24,12 +27,12 @@ describe Resque::Plugins::Resqued::Pool do
 
     context 'when registering workers' do
       before do
-        worker.expects(:pid).returns(1001)
+        worker.expects(:pid).returns(fake_pid)
         subject.register(worker)
       end
 
       it 'stores the pid' do
-        subject.worker_processes.must_include(1001)
+        subject.worker_processes.must_include(localized_pid)
       end
 
       it 'increments the worker count' do
@@ -45,13 +48,13 @@ describe Resque::Plugins::Resqued::Pool do
 
     context 'when de-registering workers' do
       before do
-        worker.expects(:pid).at_least_once.returns(1001)
+        worker.expects(:pid).at_least_once.returns(fake_pid)
         subject.register(worker)
         subject.deregister(worker)
       end
 
       it 'removes the pid' do
-        subject.worker_processes.wont_include(1001)
+        subject.worker_processes.wont_include(localized_pid)
       end
 
       it 'decrements the worker count' do

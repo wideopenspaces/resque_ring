@@ -15,18 +15,22 @@ module Resque
         end
 
         def register(name, pid)
-          sadd  "#{name}:worker_list", pid
+          sadd  "#{name}:worker_list", localize(pid)
           incr  "#{name}:worker_count"
           set   "#{name}:last_spawned", Time.now.utc
         end
 
         def deregister(name, pid)
           decr  "#{name}:worker_count"
-          srem  "#{name}:worker_list", pid
+          srem  "#{name}:worker_list", localize(pid)
         end
 
         def current(name, focus)
           get   "#{name}:#{focus}"
+        end
+
+        def localize(value)
+          "#{host}:#{value}"
         end
 
         def get(key)
