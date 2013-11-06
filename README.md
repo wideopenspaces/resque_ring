@@ -32,7 +32,9 @@ Autoscaling pool manager for resque workers.
 Example configuration:
 
 ```
-resque: url to redis/resque installation
+redis:
+  host: localhost
+  port: 6379
 delay: 60 # seconds to wait before checking again
 workers:
   indexing:

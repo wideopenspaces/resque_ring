@@ -1,3 +1,6 @@
+redis:
+  host: localhost
+  port: 6379
 delay: 60
 workers:
   indexing:

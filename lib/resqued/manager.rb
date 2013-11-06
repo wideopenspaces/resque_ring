@@ -9,7 +9,7 @@ module Resque
         def initialize(options = {})
           @options = options
           @worker_groups = {}
-          @registry = RedisRegistry.new(host: 'localhost', port: 6379)
+          load_registry(options.delete(:redis))
 
           config = load_config_file(options[:config]) if options[:config]
         end
@@ -32,6 +32,13 @@ module Resque
             set_delay(@config_file[:delay])
             set_worker_groups(@config_file[:workers])
           end
+        end
+
+        def load_registry(redis_options)
+          unless redis_options.is_a?(Hash) && redis_options.keys.include?(:host, :port)
+            redis_options = { host: 'localhost', port: 6379 }
+          end
+          @registry = RedisRegistry.new(redis_options)
         end
 
         def set_delay(delay)
