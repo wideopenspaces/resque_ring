@@ -44,11 +44,11 @@ describe Resque::Plugins::Resqued::Worker do
           end
 
           before do
-            worker.start
+            worker.start!
           end
 
           it 'will stop the process' do
-            worker.stop
+            worker.stop!
           end
         end
       end

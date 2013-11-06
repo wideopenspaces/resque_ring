@@ -4,6 +4,9 @@ module Resque
   module Plugins
     module Resqued
       class Worker
+        extend Forwardable
+        def_delegators :process, :pid, :alive?, :exited?
+
         attr_reader :pool, :options, :process
 
         def initialize(options)
@@ -20,11 +23,6 @@ module Resque
 
         def stop!
           process.stop
-        end
-
-        # allow the worker to pretend it is a Process object
-        def method_missing(method, *args, &block)
-          process.send(method, *args, &block)
         end
 
         private
