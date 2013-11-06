@@ -5,7 +5,7 @@ module Resque
         extend HattrAccessor
 
         attr_reader :name, :manager, :queues
-        hattr_reader :options, :spawn_rate, :threshold, :wait_time
+        hattr_reader :options, :spawn_rate, :threshold, :wait_time, :remove_when_idle
 
         def initialize(name, options = {})
           @name = name.to_s
@@ -31,6 +31,13 @@ module Resque
           spawn_command.collect { |c| c.gsub('{{queues}}', "QUEUES=#{queues.map(&:to_s).join(',')}") }
         end
 
+        def wants_to_add_workers?
+          queues_total >= threshold && pool.ready_to_spawn
+        end
+
+        def wants_to_remove_workers?
+          remove_when_idle && queues_are_empty?
+        end
 
         def work_dir
           @work_dir ||= @options[:spawner][:dir]
@@ -46,6 +53,10 @@ module Resque
 
         def queues_total
           queues.values.map(&:size).reduce(:+)
+        end
+
+        def queues_are_empty?
+          queues_total == 0
         end
 
         def registry
@@ -65,10 +76,11 @@ module Resque
 
         def defaults
           {
-            spawn_rate:  1,
-            threshold:   100,
-            wait_time:   60,
-            pool:        {}
+            spawn_rate:       1,
+            threshold:        100,
+            wait_time:        60,
+            remove_when_idle: false,
+            pool:             {}
           }
         end
       end

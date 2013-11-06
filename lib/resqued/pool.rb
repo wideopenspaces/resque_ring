@@ -14,8 +14,8 @@ module Resque
         end
 
         def manage!
-          # despawn_if_necessary
-          # spawn_if_necessary
+          despawn_if_necessary
+          spawn_if_necessary
         end
 
         def deregister(worker)
@@ -39,7 +39,28 @@ module Resque
           worker_group.registry.current(worker_group.name, :last_spawned)
         end
 
+        def spawn_blocked?
+          worker_group.registry.current(worker_group.name, :spawn_blocked) == '1'
+        end
+
+        def able_to_spawn?
+          !spawn_blocked?
+        end
+
         private
+
+        def despawn_if_necessary
+          despawn! if worker_group.wants_to_remove_workers?
+        end
+
+        def despawn!
+          true
+        end
+
+        def spawn_if_necessary
+          spawn! and return unless min_workers_spawned?
+          spawn! if worker_group.wants_to_add_workers? && room_for_more?
+        end
 
         def defaults
           {
@@ -50,6 +71,10 @@ module Resque
           }
         end
 
+        def min_workers_spawned?
+          worker_processes >= min
+        end
+
         def spawn!
           worker = Resque::Plugins::Resqued::Worker.new(worker_options)
           register(worker) if worker.alive?
@@ -57,6 +82,10 @@ module Resque
 
         def worker_options
           worker_group.worker_options.merge({ pool: self })
+        end
+
+        def room_for_more?
+          worker_processes < max
         end
       end
     end

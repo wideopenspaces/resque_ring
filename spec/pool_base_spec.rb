@@ -46,6 +46,10 @@ describe Resque::Plugins::Resqued::Pool do
         subject.last_spawned.wont_be_nil
       end
 
+      it 'blocks the spawner' do
+        subject.spawn_blocked?.must_equal(true)
+      end
+
       after { worker.unstub(:pid) }
     end
 
@@ -67,7 +71,6 @@ describe Resque::Plugins::Resqued::Pool do
 
       after { worker.unstub(:pid) }
     end
-
   end
 
   describe '#spawn!' do

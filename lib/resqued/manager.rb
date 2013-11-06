@@ -35,7 +35,7 @@ module Resque
         end
 
         def set_delay(delay)
-          @delay = delay
+          @delay = delay || 120
         end
 
         def set_worker_groups(groups)
