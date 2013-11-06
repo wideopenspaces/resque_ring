@@ -45,7 +45,7 @@ module Resque
         end
 
         def queues_total
-          queues.reduce(0) { |sum, q| sum + q.size }
+          queues.values.map(&:size).reduce(:+)
         end
 
         def registry
