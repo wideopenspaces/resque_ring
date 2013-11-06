@@ -17,6 +17,10 @@ module Resque
         def to_s
           name
         end
+
+        def inspect
+          "Queue:#{object_id}:#{name}:#{size}"
+        end
       end
     end
   end
