@@ -9,7 +9,7 @@ module Resque
         def initialize(options = {})
           @options = options
           @worker_groups = {}
-          @registry = Registry.new
+          @registry = RedisRegistry.new(host: 'localhost', port: 6379)
 
           config = load_config_file(options[:config]) if options[:config]
         end

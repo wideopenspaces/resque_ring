@@ -6,7 +6,7 @@ module Resque
 
         attr_reader :registry
 
-        def initialize
+        def initialize(options = {})
           @registry = {}
         end
 
@@ -14,23 +14,39 @@ module Resque
           @@host
         end
 
-        def register(name, pid)
-          sadd  "#{name}:worker_list", localize(pid)
-          incr  "#{name}:worker_count"
-          set   "#{name}:last_spawned", Time.now.utc
+        def reset!(namespace)
+          @registry.delete_if { |k,v| k =~ /#{namespace}:/ }
+        end
+
+        def register(name, pid, options = {})
+          atomically do
+            sadd  "#{name}:worker_list", localize(pid)
+            incr  "#{name}:worker_count"
+            set   "#{name}:last_spawned", Time.now.utc
+          end
         end
 
         def deregister(name, pid)
-          decr  "#{name}:worker_count"
-          srem  "#{name}:worker_list", localize(pid)
+          atomically do
+            decr  "#{name}:worker_count"
+            srem  "#{name}:worker_list", localize(pid)
+          end
         end
 
         def current(name, focus)
           get   "#{name}:#{focus}"
         end
 
+        def list(name, focus)
+          current(name, focus)
+        end
+
         def localize(value)
           "#{host}:#{value}"
+        end
+
+        def atomically(&block)
+          yield # use redis.multi in Redis version
         end
 
         def get(key)

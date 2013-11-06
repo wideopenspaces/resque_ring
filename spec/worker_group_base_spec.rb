@@ -58,7 +58,7 @@ describe Resque::Plugins::Resqued::WorkerGroup do
 
   context 'with a provided configuration' do
     let(:options) { file = Yambol.load_file('./spec/support/config_with_delay.yml')[:workers][:indexing] }
-    let(:wg) { Resque::Plugins::Resqued::WorkerGroup.new('indexing', options) }
+    let(:wg) { Resque::Plugins::Resqued::WorkerGroup.new('indexing', options.merge(manager: mgr)) }
     subject { wg }
 
     it 'knows its spawn command' do

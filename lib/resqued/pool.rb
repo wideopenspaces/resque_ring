@@ -23,15 +23,16 @@ module Resque
         end
 
         def register(worker)
-          worker_group.registry.register(worker_group.name, worker.pid)
+          options = worker_group.manager.delay ? { delay: worker_group.manager.delay } : {}
+          worker_group.registry.register(worker_group.name, worker.pid, options)
         end
 
         def current_workers
-          worker_group.registry.current(worker_group.name, :worker_count) || 0
+          worker_group.registry.current(worker_group.name, :worker_count).to_i
         end
 
         def worker_processes
-          worker_group.registry.current(worker_group.name, :worker_list) || []
+          worker_group.registry.list(worker_group.name, :worker_list) || []
         end
 
         def last_spawned

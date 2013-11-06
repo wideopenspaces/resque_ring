@@ -27,6 +27,9 @@ describe Resque::Plugins::Resqued::Pool do
 
     context 'when registering workers' do
       before do
+        manager.instance_variable_set(:@delay, 30)
+        manager.registry.reset!(worker_group.name)
+
         worker.expects(:pid).returns(fake_pid)
         subject.register(worker)
       end
@@ -48,6 +51,7 @@ describe Resque::Plugins::Resqued::Pool do
 
     context 'when de-registering workers' do
       before do
+        manager.registry.reset!(worker_group.name)
         worker.expects(:pid).at_least_once.returns(fake_pid)
         subject.register(worker)
         subject.deregister(worker)
