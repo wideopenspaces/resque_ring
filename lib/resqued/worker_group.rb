@@ -11,7 +11,7 @@ module Resque
           @name = name.to_s
           @manager = options.delete(:manager)
 
-          build_queues(options.fetch(:queues, nil))
+          build_queues(options.fetch(:queues, []))
           @options = defaults.merge(options)
         end
 
@@ -23,6 +23,22 @@ module Resque
           pool.manage!
         end
 
+        def pool
+          @pool ||= Resque::Plugins::Resqued::Pool.new(@options[:pool].merge(worker_group: self))
+        end
+
+        def queues_are_empty?
+          queues_total == 0
+        end
+
+        def queues_total
+          queues.values.map(&:size).reduce(:+)
+        end
+
+        def registry
+          manager.registry
+        end
+
         def spawn_command
           @spawn_command ||= @options[:spawner][:command]
         end
@@ -32,7 +48,7 @@ module Resque
         end
 
         def wants_to_add_workers?
-          queues_total >= threshold && pool.ready_to_spawn
+          queues_total >= threshold && pool.able_to_spawn?
         end
 
         def wants_to_remove_workers?
@@ -45,22 +61,6 @@ module Resque
 
         def worker_options
           { spawner: spawner, env: environment, cwd: work_dir }
-        end
-
-        def pool
-          @pool ||= Resque::Plugins::Resqued::Pool.new(@options[:pool].merge(worker_group: self))
-        end
-
-        def queues_total
-          queues.values.map(&:size).reduce(:+)
-        end
-
-        def queues_are_empty?
-          queues_total == 0
-        end
-
-        def registry
-          manager.registry
         end
 
         private
