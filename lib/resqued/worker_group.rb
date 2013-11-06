@@ -42,6 +42,10 @@ module Resque
           @pool ||= Resque::Plugins::Resqued::Pool.new(@options[:pool].merge(worker_group: self))
         end
 
+        def registry
+          manager.registry
+        end
+
         private
 
         def defaults

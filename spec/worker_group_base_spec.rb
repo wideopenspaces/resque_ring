@@ -9,6 +9,11 @@ describe Resque::Plugins::Resqued::WorkerGroup do
     subject.manager.must_equal mgr
   end
 
+  context 'queues' do
+    it 'can get the number of jobs in a single queue'
+    it 'can get the total jobs in all watched queues'
+  end
+
   context 'with no provided configuration' do
     it 'defaults to a wait_time of 60' do
       subject.wait_time.must_equal 60

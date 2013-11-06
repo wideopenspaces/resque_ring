@@ -18,9 +18,24 @@ module Resque
           # spawn_if_necessary
         end
 
-        def register(pid)
-          # store pid in redis
-          # increment pool size
+        def deregister(worker)
+          worker_group.registry.deregister(worker_group.name, worker.pid)
+        end
+
+        def register(worker)
+          worker_group.registry.register(worker_group.name, worker.pid)
+        end
+
+        def current_workers
+          worker_group.registry.current(worker_group.name, :worker_count) || 0
+        end
+
+        def worker_processes
+          worker_group.registry.current(worker_group.name, :worker_list) || []
+        end
+
+        def last_spawned
+          worker_group.registry.current(worker_group.name, :last_spawned)
         end
 
         private

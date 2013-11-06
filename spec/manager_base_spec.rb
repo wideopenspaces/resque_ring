@@ -12,6 +12,10 @@ describe Resque::Plugins::Resqued::Manager do
       it 'sets an accessor for options that defaults to an empty hash' do
         subject.options.must_be_instance_of(Hash)
       end
+
+      it 'has a registry' do
+        subject.registry.must_be_kind_of(Resque::Plugins::Resqued::Registry)
+      end
     end
 
     context 'with config file given' do

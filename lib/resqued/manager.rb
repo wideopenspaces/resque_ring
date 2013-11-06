@@ -4,11 +4,12 @@ module Resque
   module Plugins
     module Resqued
       class Manager
-        attr_reader :options, :delay, :worker_groups
+        attr_reader :options, :delay, :worker_groups, :registry
 
         def initialize(options = {})
           @options = options
           @worker_groups = {}
+          @registry = Registry.new
 
           config = load_config_file(options[:config]) if options[:config]
         end
