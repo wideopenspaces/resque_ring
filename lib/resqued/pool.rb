@@ -23,6 +23,7 @@ module Resque
         end
 
         def register(worker)
+          @workers << worker
           options = worker_group.manager.delay ? { delay: worker_group.manager.delay } : {}
           worker_group.registry.register(worker_group.name, worker.pid, options)
         end
@@ -54,7 +55,9 @@ module Resque
         end
 
         def despawn!
-          true
+          worker_to_fire = @workers.pop
+          worker_to_fire.stop!
+          deregister(worker_to_fire)
         end
 
         def spawn_if_necessary
@@ -77,6 +80,7 @@ module Resque
 
         def spawn!
           worker = Resque::Plugins::Resqued::Worker.new(worker_options)
+          worker.start!
           register(worker) if worker.alive?
         end
 
