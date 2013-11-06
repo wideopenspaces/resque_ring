@@ -4,12 +4,14 @@ module Resque
       class WorkerGroup
         extend HattrAccessor
 
-        attr_reader :name, :manager
-        hattr_reader :options, :queues, :spawn_rate, :threshold, :wait_time
+        attr_reader :name, :manager, :queues
+        hattr_reader :options, :spawn_rate, :threshold, :wait_time
 
         def initialize(name, options = {})
           @name = name.to_s
           @manager = options.delete(:manager)
+
+          build_queues(options.fetch(:queues, nil))
           @options = defaults.merge(options)
         end
 
@@ -26,7 +28,7 @@ module Resque
         end
 
         def spawner
-          spawn_command.collect { |c| c.gsub('{{queues}}', "QUEUES=#{queues.join(',')}") }
+          spawn_command.collect { |c| c.gsub('{{queues}}', "QUEUES=#{queues.map(&:to_s).join(',')}") }
         end
 
 
@@ -42,15 +44,27 @@ module Resque
           @pool ||= Resque::Plugins::Resqued::Pool.new(@options[:pool].merge(worker_group: self))
         end
 
+        def queues_total
+          queues.reduce(0) { |sum, q| sum + q.size }
+        end
+
         def registry
           manager.registry
         end
 
         private
 
+        def build_queues(queues)
+          @queues ||= {}
+
+          return if queues.nil?
+          queues.each do |q|
+            @queues.store(q, Queue.new(name: q, worker_group: self))
+          end
+        end
+
         def defaults
           {
-            queues:      [],
             spawn_rate:  1,
             threshold:   100,
             wait_time:   60,

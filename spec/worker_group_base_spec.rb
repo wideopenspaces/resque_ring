@@ -1,4 +1,5 @@
 require 'spec_helper'
+require './spec/support/hash_queue_store'
 
 describe Resque::Plugins::Resqued::WorkerGroup do
   let(:mgr) { Resque::Plugins::Resqued::Manager.new({}) }
@@ -10,8 +11,27 @@ describe Resque::Plugins::Resqued::WorkerGroup do
   end
 
   context 'queues' do
-    it 'can get the number of jobs in a single queue'
-    it 'can get the total jobs in all watched queues'
+    let(:store) { HashQueueStore.new }
+    let(:wg) { Resque::Plugins::Resqued::WorkerGroup.new('indexing', options) }
+    let(:queue_a) { Resque::Plugins::Resqued::Queue.new(name: 'queue_a', worker_group: wg, store: store) }
+    let(:queue_b) { Resque::Plugins::Resqued::Queue.new(name: 'queue_b', worker_group: wg, store: store) }
+
+    before do
+      store.queues['queue_a'] = 1
+      store.queues['queue_b'] = 3
+
+      wg.instance_variable_set('@queues', { 'queue_a' => queue_a, 'queue_b' => queue_b })
+    end
+
+    subject { wg }
+
+    it 'can get the number of jobs in a single queue' do
+      subject.queues['queue_a'].size.must_equal(1)
+    end
+
+    it 'can get the total jobs in all watched queues' do
+      subject.queues_total.must_equal(4)
+    end
   end
 
   context 'with no provided configuration' do
@@ -28,7 +48,7 @@ describe Resque::Plugins::Resqued::WorkerGroup do
     end
 
     it 'defaults to no watched queues' do
-      subject.queues.must_equal []
+      subject.queues.must_equal({})
     end
 
     it 'creates a Pool' do
@@ -70,7 +90,7 @@ describe Resque::Plugins::Resqued::WorkerGroup do
     end
 
     it 'includes the proper queues' do
-      subject.queues.must_equal options[:queues]
+      subject.queues.keys.must_equal options[:queues]
     end
 
     it 'creates a Pool' do
@@ -115,7 +135,7 @@ describe Resque::Plugins::Resqued::WorkerGroup do
     context '#spawner' do
       context 'if command includes {{queues}}' do
         it 'returns spawn command with queues inserted' do
-          subject.spawner.must_equal options[:spawner][:command].each { |c| c.gsub!("{{queues}}", "QUEUES=#{subject.queues.join(',')}") }
+          subject.spawner.must_equal options[:spawner][:command].each { |c| c.gsub!("{{queues}}", "QUEUES=#{subject.queues.map(&:to_s).join(',')}") }
         end
       end
     end
