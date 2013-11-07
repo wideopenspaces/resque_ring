@@ -4,19 +4,31 @@ module Resque
       class Pool
         extend HattrAccessor
 
-        # @!attribute [r] worker_group
-        #   @return [WorkerGroup] {WorkerGroup} for this Pool
-        # @!attribute [r] workers
-        #   @return [Array] Array of Workers managed
-        #     by this pool
-        attr_reader   :worker_group, :workers
+        # @return [WorkerGroup] {WorkerGroup} for this Pool
+        attr_reader :worker_group
 
-        # @!attribute [r] min
-        #   @return [Integer] minimum # of workers
-        #     available at all times
-        # @!attribute [r] max
-        #   @return [Integer] max # of workers to spawn
-        hattr_reader  :options, :first_at, :global_max, :max, :min
+        # @return [Array] Array of Workers managed by this pool
+        attr_reader :workers
+
+        # @!method first_at
+        #   @return [Integer] How many items should be in the queue before
+        #     spawning the first worker. Defaults to 1
+        hattr_reader :options, :first_at
+
+        # @!method global_max
+        #   @return [Integer] the maximum number of {Worker}s to run across
+        #     all servers. Ignored if set to 0. Defaults to 0
+        hattr_reader :options, :global_max
+
+        # @!method max
+        #   @return [Integer] the maximum number of {Worker}s to run locally.
+        #     Defaults to 5.
+        hattr_reader :options, :max
+
+        # @!method min
+        #   @return [Integer] the minimum number of Workers to keep alive locally.
+        #     Defaults to 1
+        hattr_reader :options, :min
 
         # @param options [Hash] options for this Pool
         def initialize(options)

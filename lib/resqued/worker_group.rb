@@ -4,23 +4,37 @@ module Resque
       class WorkerGroup
         extend HattrAccessor
 
-        # @!attribute [r] name
-        #   @return [String] name of the WorkerGroup
-        # @!attribute [r] manager
-        #   @return [Manager] {Manager} class for this WorkerGroup
-        # @!attribute [r] queues
-        #   @return [Hash{String => Queue}] a hash containing
-        #     the {Queue} instances managed by this
-        #     WorkerGroup, organized by name
-        attr_reader :name, :manager, :queues
+        # @return [String] name of the WorkerGroup
+        attr_reader :name
 
-        # @!attribute [r] threshold
-        #   @return [Integer] the number of queue items
-        #     needed before spawning more workers
-        # @!attribute [r] remove_when_idle
+        # @return [Manager] {Manager} class for this WorkerGroup
+        attr_reader :manager
+
+        # @return [Hash{String => Queue}] a hash containing
+        #   the {Queue} instances managed by this
+        #   WorkerGroup, organized by name
+        attr_reader :queues
+
+        # @!method spawn_rate
+        #   @return [Object] How many new workers to spawn at a time.
+        #     Defaults to 1
+        hattr_reader :options, :spawn_rate
+
+        # @!method threshold
+        #   @return [Object] the number of queue items
+        #     needed before spawning more workers. Defaults to 100
+        hattr_reader :options, :threshold
+
+        # @!method wait_time
+        #   @return [Object] How long to wait after spawning before
+        #     spawning a new worker. Should be longer than the global
+        #     delay. Defaults to 60
+        hattr_reader :options, :wait_time
+
+        # @!method remove_when_idle
         #   @return [Boolean] whether or not to reduce
         #     worker capacity when idle. Defaults to false
-        hattr_reader :options, :spawn_rate, :threshold, :wait_time, :remove_when_idle
+        hattr_reader :options, :remove_when_idle
 
         # @param name [String] a name for this WorkerGroup
         # @param options [Hash] options for this WorkerGroup

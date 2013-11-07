@@ -4,21 +4,20 @@ module Resque
   module Plugins
     module Resqued
       class Manager
-        # @!attribute [r] options
-        #   @return [Hash{Symbol => String}] the options
-        #     used to create the Manager
-        #
-        # @!attribute [r] delay
-        #   @return [Integer] the time between script runs
-        #
-        # @!attribute [r] worker_groups
-        #   @return [Hash{String => WorkerGroup}] the groups
-        #     the manager manages, organized by name
-        #
-        # @!attribute [r] registry
-        #   @return [Registry] the backend store used for keeping
-        #     track of workers
-        attr_reader :options, :delay, :worker_groups, :registry
+        # @return [Hash{Symbol => String}] the options
+        #   used to create the Manager
+        attr_reader :options
+
+        # @return [Integer] the time between script runs
+        attr_reader :delay
+
+        # @return [Hash{String => WorkerGroup}] list of {WorkerGroup}s
+        #   the manager manages, organized by name
+        attr_reader :worker_groups
+
+        # @return [Registry] the backend store used for keeping
+        #   track of workers
+        attr_reader :registry
 
         # @param options [Hash] options for the Manager, usually
         #   including a key called config containing
