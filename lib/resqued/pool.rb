@@ -56,7 +56,7 @@ module Resque
         # @param worker [Worker] the worker to be added
         def register(worker)
           @workers << worker
-          options = worker_group.manager.delay ? { delay: worker_group.manager.delay } : {}
+          options = worker_group.manager.delay ? { delay: worker_group.wait_time } : {}
           worker_group.registry.register(worker_group.name, worker.pid, options)
         end
 
