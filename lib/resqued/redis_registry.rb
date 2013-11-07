@@ -1,7 +1,9 @@
 module Resque
   module Plugins
     module Resqued
-      class RedisRegistry < Registry
+      class RedisRegistry
+        include Registry
+
         PREFIX = 'resqued'
 
         extend Forwardable
