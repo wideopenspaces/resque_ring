@@ -169,6 +169,12 @@ describe Resque::Plugins::Resqued::Pool do
           it 'registers the new worker' do
             subject
           end
+
+          after do
+            Resque::Plugins::Resqued::Worker.unstub
+            @worker.unstub
+            pool.unstub
+          end
         end
       end
     end
@@ -181,6 +187,8 @@ describe Resque::Plugins::Resqued::Pool do
       it 'returns true' do
         pool.able_to_spawn?.must_equal(true)
       end
+
+      after { pool.unstub }
     end
 
     context 'when spawning is blocked' do
@@ -189,6 +197,8 @@ describe Resque::Plugins::Resqued::Pool do
       it 'returns false' do
         pool.able_to_spawn?.must_equal(false)
       end
+
+      after { pool.unstub }
     end
   end
 
@@ -232,13 +242,18 @@ describe Resque::Plugins::Resqued::Pool do
           subject.must_equal(true)
         end
       end
+
+      after { pool.unstub }
     end
 
     context 'when local workers greater than max' do
       before { pool.expects(:workers).returns(['test']*10) }
+
       it 'returns false' do
         subject.must_equal(false)
       end
+
+      after { pool.unstub }
     end
 
     context 'when worker_processes exceeds global_max' do
@@ -251,6 +266,8 @@ describe Resque::Plugins::Resqued::Pool do
       it 'returns false' do
         subject.must_equal(false)
       end
+
+      after { pool.unstub }
     end
   end
 
