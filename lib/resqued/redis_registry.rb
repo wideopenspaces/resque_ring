@@ -68,6 +68,7 @@ module Resque
           get _key(name, focus)
         end
 
+        # Perform operations within block in a Redis transaction
         # @yieldparam multi [Redis::Multi] a Redis.multi context (for atomic operations)
         def atomically(&block)
           @redis.multi { |multi| yield multi }
