@@ -1,11 +1,30 @@
 require 'childprocess'
 
+# A managed worker process.
 module Resque
   module Plugins
     module Resqued
       class Worker
-        attr_reader :pool, :options, :process
+        extend Forwardable
+        def_delegators :process, :pid, :alive?, :exited?
 
+        # @return [Pool] {Pool} that owns this Worker
+        attr_reader :pool
+
+        # @return [Hash] options used to create this Worker instance
+        attr_reader :options
+
+        # @return [#build] the process manager for this Worker
+        attr_reader :process
+
+        # @param options [Hash] the options for creating this Worker
+        # @option options [#build] :process_mgr a ChildProcess-compatible
+        #   class to manage the Worker process
+        # @option options [Pool] :pool {Pool} that owns this Worker
+        # @option options [Array] :spawner an Array of elements used to
+        #   build the spawn command (from {WorkerGroup#spawner})
+        # @option options [Hash] :env from {WorkerGroup#environment}
+        # @option options [String] :cwd from {WorkerGroup#work_dir}
         def initialize(options)
           @process_mgr = options.delete(:process_mgr) || ChildProcess
           @pool = options.delete(:pool)
@@ -14,17 +33,14 @@ module Resque
           build!
         end
 
+        # Instructs a worker to start its process
         def start!
           process.start
         end
 
+        # Instructs a worker to die
         def stop!
           process.stop
-        end
-
-        # allow the worker to pretend it is a Process object
-        def method_missing(method, *args, &block)
-          process.send(method, *args, &block)
         end
 
         private
