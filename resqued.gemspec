@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'minitest', '~> 5.0.0'
   s.add_development_dependency 'minitest-spec-context'
   s.add_development_dependency 'pry'
-  s.add_development_dependency 'mocha'
+  s.add_development_dependency 'mocha', '0.13.3'
   s.add_development_dependency 'mock_redis'
   s.add_development_dependency 'simplecov', '~> 0.8.1'
 
