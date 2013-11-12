@@ -22,7 +22,7 @@ require 'pry'
 require 'yaml'
 
 # Load myself
-require 'resqued'
+require 'resque_ring'
 
 # Mock out all Redis calls
 require 'mock_redis'

@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-describe Resque::Plugins::Resqued::Pool do
-  let(:manager) { Resque::Plugins::Resqued::Manager.new }
-  let(:worker_group) { Resque::Plugins::Resqued::WorkerGroup.new('test', manager: manager) }
+describe Resque::Plugins::ResqueRing::Pool do
+  let(:manager) { Resque::Plugins::ResqueRing::Manager.new }
+  let(:worker_group) { Resque::Plugins::ResqueRing::WorkerGroup.new('test', manager: manager) }
   let(:options) { Hash.new.merge(worker_group: worker_group) }
-  let(:pool) { Resque::Plugins::Resqued::Pool.new(options) }
+  let(:pool) { Resque::Plugins::ResqueRing::Pool.new(options) }
 
   subject { pool }
 
@@ -13,7 +13,7 @@ describe Resque::Plugins::Resqued::Pool do
   end
 
   context 'through the registry' do
-    let(:worker) { Resque::Plugins::Resqued::Worker.new(pool: pool) }
+    let(:worker) { Resque::Plugins::ResqueRing::Worker.new(pool: pool) }
     let(:fake_pid) { 1001 }
     let(:localized_pid) { "#{manager.registry.host}:1001" }
 
@@ -79,7 +79,7 @@ describe Resque::Plugins::Resqued::Pool do
     context 'when worker_group wants to remove workers' do
       before do
         worker_group.stubs(:wants_to_remove_workers?).returns(true)
-        3.times { pool.workers.unshift(Resque::Plugins::Resqued::Worker.new(pool: pool)) }
+        3.times { pool.workers.unshift(Resque::Plugins::ResqueRing::Worker.new(pool: pool)) }
 
         @worker_to_fire = pool.workers.last
         @worker_to_fire.process.expects(:stop).returns(true)
@@ -104,10 +104,10 @@ describe Resque::Plugins::Resqued::Pool do
         pool.expects(:min_workers_spawned?).returns(false)
         worker_group.expects(:worker_options).returns({})
 
-        @worker = Resque::Plugins::Resqued::Worker.new(pool: pool)
+        @worker = Resque::Plugins::ResqueRing::Worker.new(pool: pool)
 
         # creates a new worker
-        Resque::Plugins::Resqued::Worker.expects(:new).at_least_once.returns(@worker)
+        Resque::Plugins::ResqueRing::Worker.expects(:new).at_least_once.returns(@worker)
 
         # attempts to start
         @worker.expects(:start).at_least_once.returns(true)
@@ -129,7 +129,7 @@ describe Resque::Plugins::Resqued::Pool do
       end
 
       after do
-        Resque::Plugins::Resqued::Worker.unstub
+        Resque::Plugins::ResqueRing::Worker.unstub
         @worker.unstub
         pool.unstub
       end
@@ -146,10 +146,10 @@ describe Resque::Plugins::Resqued::Pool do
             pool.expects(:room_for_more?).returns(true)
             worker_group.expects(:worker_options).returns({})
 
-            @worker = Resque::Plugins::Resqued::Worker.new(pool: pool)
+            @worker = Resque::Plugins::ResqueRing::Worker.new(pool: pool)
 
             # creates a new worker
-            Resque::Plugins::Resqued::Worker.expects(:new).at_least_once.returns(@worker)
+            Resque::Plugins::ResqueRing::Worker.expects(:new).at_least_once.returns(@worker)
 
             # attempts to start
             @worker.expects(:start).at_least_once.returns(true)
@@ -171,7 +171,7 @@ describe Resque::Plugins::Resqued::Pool do
           end
 
           after do
-            Resque::Plugins::Resqued::Worker.unstub
+            Resque::Plugins::ResqueRing::Worker.unstub
             @worker.unstub
             pool.unstub
           end
@@ -273,10 +273,10 @@ describe Resque::Plugins::Resqued::Pool do
 
   describe '#spawn!' do
     before do
-      @worker = Resque::Plugins::Resqued::Worker.new(pool: pool)
+      @worker = Resque::Plugins::ResqueRing::Worker.new(pool: pool)
 
       pool.worker_group.expects(:worker_options).at_least_once.returns({})
-      Resque::Plugins::Resqued::Worker.expects(:new).with(pool: pool).returns(@worker)
+      Resque::Plugins::ResqueRing::Worker.expects(:new).with(pool: pool).returns(@worker)
       pool.expects(:register).with(@worker).returns(true)
       @worker.expects(:alive?).returns(true)
     end
@@ -289,7 +289,7 @@ describe Resque::Plugins::Resqued::Pool do
 
     after do
       pool.worker_group.unstub(:worker_options)
-      Resque::Plugins::Resqued::Worker.unstub(:new)
+      Resque::Plugins::ResqueRing::Worker.unstub(:new)
       pool.unstub(:register)
       @worker.unstub(:alive?)
     end
@@ -320,7 +320,7 @@ describe Resque::Plugins::Resqued::Pool do
       max:         4,
       first_at:    10
     } }
-    subject { Resque::Plugins::Resqued::Pool.new(options) }
+    subject { Resque::Plugins::ResqueRing::Pool.new(options) }
 
     it 'sets proper global_max' do
       subject.global_max.must_equal options[:global_max]

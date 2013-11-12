@@ -1,10 +1,10 @@
 module Resque
   module Plugins
-    module Resqued
+    module ResqueRing
       class RedisRegistry
         include Registry
 
-        PREFIX = 'resqued'
+        PREFIX = 'ResqueRing'
 
         extend Forwardable
         def_delegators :@redis, :get, :set, :sadd, :srem, :incr, :decr

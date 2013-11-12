@@ -1,10 +1,10 @@
 require 'spec_helper'
-require 'resqued/redis_registry'
+require 'resque_ring/redis_registry'
 
-describe Resque::Plugins::Resqued::RedisRegistry do
+describe Resque::Plugins::ResqueRing::RedisRegistry do
   let(:mock_redis)  { MOCK_REDIS }
-  let(:registry)    { Resque::Plugins::Resqued::RedisRegistry.new({}) }
-  let(:prefix)      { "#{Resque::Plugins::Resqued::RedisRegistry::PREFIX}:test" }
+  let(:registry)    { Resque::Plugins::ResqueRing::RedisRegistry.new({}) }
+  let(:prefix)      { "#{Resque::Plugins::ResqueRing::RedisRegistry::PREFIX}:test" }
 
   before { registry.reset!('test') }
 
