@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.email         = ['jake@wideopenspac.es']
   s.summary       = %q{Autoscaling pool manager for resque workers.}
   s.description   = s.summary + %q{ Enables dynamic worker pool management based on queue size, worker stats and other important variables. }
-  s.homepage      = 'https://github.com/wideopenspaces/resqued'
+  s.homepage      = 'https://github.com/wideopenspaces/resque_ring'
   s.license       = 'MIT'
 
   s.files         = `git ls-files`.split($/)
