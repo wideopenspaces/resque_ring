@@ -112,6 +112,101 @@ describe Resque::Plugins::Resqued::WorkerGroup do
       after { pool.verify }
     end
 
+    context '#queues_are_empty?' do
+      context 'if all queues have no items' do
+        before { wg.stubs(:queues_total).returns(0) }
+
+        it 'returns true' do
+          wg.queues_are_empty?.must_equal(true)
+        end
+
+        after { wg.unstub(:queues_total) }
+      end
+    end
+
+    context '#wants_to_add_workers?' do
+      subject { wg.wants_to_add_workers? }
+
+      context 'when queues_total greater than threshold' do
+        before do
+          wg.stubs(:queues_total).returns(100)
+          wg.stubs(:threshold).returns(50)
+        end
+
+        context 'pool is able to spawn' do
+          before do
+            wg.pool.expects(:able_to_spawn?).returns(true)
+          end
+
+          it 'returns true' do
+            subject.must_equal(true)
+          end
+
+          after { wg.pool.unstub(:able_to_spawn?) }
+        end
+
+        context 'pool is unable to spawn' do
+          before do
+            wg.pool.expects(:able_to_spawn?).returns(false)
+          end
+
+          it 'returns false' do
+            subject.must_equal(false)
+          end
+
+          after { wg.pool.unstub(:able_to_spawn?) }
+        end
+
+        after { wg.unstub }
+      end
+
+      context 'when queues_total less than threshold' do
+        it 'returns false' do
+          subject.must_equal(false)
+        end
+      end
+    end
+
+    context '#wants_to_remove_workers?' do
+      subject { wg.wants_to_remove_workers? }
+
+      context 'when remove_when_idle is true' do
+        before { wg.expects(:remove_when_idle).returns(true) }
+
+        context 'when queues are empty' do
+          before { wg.expects(:queues_total).returns(0)}
+
+          it 'returns true' do
+            subject.must_equal(true)
+          end
+
+          after { wg.unstub(:queues_total) }
+        end
+
+        context 'when queues are not empty' do
+          before { wg.expects(:queues_total).returns(10) }
+
+          it 'returns false' do
+            subject.must_equal(false)
+          end
+
+          after { wg.unstub(:queues_total) }
+        end
+
+        after { wg.unstub(:remove_when_idle) }
+      end
+
+      context 'when remove_when_idle is false' do
+        before { wg.expects(:remove_when_idle).returns(false) }
+
+        it 'returns false' do
+          subject.must_equal(false)
+        end
+
+        after { wg.unstub(:remove_when_idle) }
+      end
+    end
+
     context '#worker_options' do
       subject { wg.worker_options }
 

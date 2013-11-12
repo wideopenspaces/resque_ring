@@ -5,6 +5,10 @@ module Resque
         # @return [String] the name of this Queue in Resque
         attr_reader :name
 
+        # @!method to_s
+        # @return [String] the name of the queue
+        alias :to_s :name
+
         # @return [WorkerGroup] the {WorkerGroup} that owns this Queue
         attr_reader :worker_group
 
@@ -23,11 +27,6 @@ module Resque
         # @return [Integer] the size of this queue in Resque
         def size
           store.size(name) rescue 0
-        end
-
-        # @return [String] the name of the queue
-        def to_s
-          name
         end
 
         # @return [String] a simple representation of the instance

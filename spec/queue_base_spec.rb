@@ -16,6 +16,12 @@ describe Resque::Plugins::Resqued::Queue do
     subject.worker_group.must_equal(wg)
   end
 
+  context '#to_s' do
+    it 'returns the name of the queue' do
+      subject.to_s.must_equal('test')
+    end
+  end
+
   context 'with an empty queue' do
     it 'returns its size as 0' do
       subject.size.must_equal(0)

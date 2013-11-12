@@ -94,16 +94,25 @@ module Resque
         # @return [Boolean] true if {#worker_processes} spawned
         #   is greater than {#min}
         def min_workers_spawned?
-          worker_processes >= min
+          worker_processes.size >= min
         end
 
         # @return [Boolean] true if {#worker_processes} spawned
         #    is less than {#max}
         def room_for_more?
-          worker_processes < max
+          under_local_max? && under_global_max?
         end
 
         private
+
+        def under_local_max?
+          workers.size < max
+        end
+
+        def under_global_max?
+          return true if global_max == 0
+          worker_processes.size < global_max
+        end
 
         def defaults
           {

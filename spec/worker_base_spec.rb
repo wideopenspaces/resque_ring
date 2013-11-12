@@ -14,7 +14,7 @@ describe Resque::Plugins::Resqued::Worker do
 
       context 'with a spawner given' do
         let(:args) { ['ruby', '-e', 'sleep'] }
-        let(:worker) { Resque::Plugins::Resqued::Worker.new(pool: pool, spawner: args ) }
+        let(:worker) { Resque::Plugins::Resqued::Worker.new(pool: pool, spawner: args, env: { rails_env: 'test' }) }
         let(:process) { ChildProcess.new }
 
         before do
