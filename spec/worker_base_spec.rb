@@ -41,9 +41,7 @@ describe Resque::Plugins::ResqueRing::Worker do
             worker.instance_variable_set(:@process, process)
             process.expects(:start).returns(process)
             process.expects(:stop).returns(process)
-          end
 
-          before do
             worker.start!
           end
 
