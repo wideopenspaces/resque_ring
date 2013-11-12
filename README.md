@@ -17,7 +17,7 @@ Autoscaling pool manager for resque workers.
 - [ ] Contractor Mode: start 1st worker automatically when items enter its queues.
 - [ ] Automatically manages and keeps track of workers it spawns
 - [ ] Track jobs processed, age & other data for each worker
-- [ ] Communicates with workers through Resque/Redis
+- [x] Communicates with workers through Resque/Redis
 - [ ] Manages worker pool sizes locally (1 server) and globally (across servers)
 
 ### Later releases
