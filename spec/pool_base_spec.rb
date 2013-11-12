@@ -73,6 +73,204 @@ describe Resque::Plugins::Resqued::Pool do
     end
   end
 
+  describe '#manage' do
+    subject { pool.manage! }
+
+    context 'when worker_group wants to remove workers' do
+      before do
+        worker_group.stubs(:wants_to_remove_workers?).returns(true)
+        3.times { pool.workers.unshift(Resque::Plugins::Resqued::Worker.new(pool: pool)) }
+
+        @worker_to_fire = pool.workers.last
+        @worker_to_fire.process.expects(:stop).returns(true)
+        pool.expects(:deregister).with(@worker_to_fire).returns(true)
+
+        pool.stubs(:spawn_if_necessary).returns(true)
+      end
+
+      it 'tells the last worker in the list to stop' do
+        subject
+      end
+
+      it 'deregisters the last worker in the list' do
+        subject
+      end
+
+      after { pool.unstub }
+    end
+
+    context 'when the minimum workers have not been spawned' do
+      before do
+        pool.expects(:min_workers_spawned?).returns(false)
+        worker_group.expects(:worker_options).returns({})
+
+        @worker = Resque::Plugins::Resqued::Worker.new(pool: pool)
+
+        # creates a new worker
+        Resque::Plugins::Resqued::Worker.expects(:new).at_least_once.returns(@worker)
+
+        # attempts to start
+        @worker.expects(:start).at_least_once.returns(true)
+
+        # registers the new worker
+        pool.expects(:register).with(@worker).returns(true)
+      end
+
+      it 'creates a new worker' do
+        subject
+      end
+
+      it 'attempts to start the new worker' do
+        subject
+      end
+
+      it 'registers the new worker' do
+        subject
+      end
+
+      after do
+        Resque::Plugins::Resqued::Worker.unstub
+        @worker.unstub
+        pool.unstub
+      end
+    end
+
+    context 'when there are more than the minimum workers' do
+      before { pool.expects(:min_workers_spawned?).returns(true) }
+
+      context 'when worker_group wants to add workers' do
+        before { worker_group.expects(:wants_to_add_workers?).returns(true) }
+
+        context 'when there is room for more' do
+          before do
+            pool.expects(:room_for_more?).returns(true)
+            worker_group.expects(:worker_options).returns({})
+
+            @worker = Resque::Plugins::Resqued::Worker.new(pool: pool)
+
+            # creates a new worker
+            Resque::Plugins::Resqued::Worker.expects(:new).at_least_once.returns(@worker)
+
+            # attempts to start
+            @worker.expects(:start).at_least_once.returns(true)
+
+            # registers the new worker
+            pool.expects(:register).with(@worker).returns(true)
+          end
+
+          it 'creates a new worker' do
+            subject
+          end
+
+          it 'attempts to start the new worker' do
+            subject
+          end
+
+          it 'registers the new worker' do
+            subject
+          end
+
+          after do
+            Resque::Plugins::Resqued::Worker.unstub
+            @worker.unstub
+            pool.unstub
+          end
+        end
+      end
+    end
+  end
+
+  describe '#able_to_spawn' do
+    context 'when spawning is not blocked' do
+      before { pool.expects(:spawn_blocked?).returns(false) }
+
+      it 'returns true' do
+        pool.able_to_spawn?.must_equal(true)
+      end
+
+      after { pool.unstub }
+    end
+
+    context 'when spawning is blocked' do
+      before { pool.expects(:spawn_blocked?).returns(true) }
+
+      it 'returns false' do
+        pool.able_to_spawn?.must_equal(false)
+      end
+
+      after { pool.unstub }
+    end
+  end
+
+  describe '#min_workers_spawned?' do
+    before  { pool.stubs(:min).returns(1) }
+    subject { pool.min_workers_spawned? }
+
+    context 'when worker processes are greater than min' do
+      before { pool.expects(:worker_processes).returns([1,2,3]) }
+      it 'returns true' do
+        subject.must_equal(true)
+      end
+    end
+
+    context 'when worker_processes are the same as min' do
+      before { pool.expects(:worker_processes).returns([3]) }
+      it 'returns true' do
+        subject.must_equal(true)
+      end
+    end
+
+    context 'when worker_processes are less than min' do
+      before { pool.expects(:worker_processes).returns([]) }
+      it 'returns false' do
+        subject.must_equal(false)
+      end
+    end
+
+    after { pool.unstub }
+  end
+
+  describe '#room_for_more?' do
+    subject { pool.room_for_more? }
+
+    context 'when local workers less than max' do
+      before { pool.expects(:workers).returns(['test']) }
+
+      context 'and worker_processes less than global_max' do
+        before { pool.expects(:worker_processes).returns([]) }
+        it 'returns true' do
+          subject.must_equal(true)
+        end
+      end
+
+      after { pool.unstub }
+    end
+
+    context 'when local workers greater than max' do
+      before { pool.expects(:workers).returns(['test']*10) }
+
+      it 'returns false' do
+        subject.must_equal(false)
+      end
+
+      after { pool.unstub }
+    end
+
+    context 'when worker_processes exceeds global_max' do
+      before do
+        pool.expects(:workers).returns(['test'])
+        pool.expects(:global_max).twice.returns(3)
+        pool.expects(:worker_processes).returns(['test']*3)
+      end
+
+      it 'returns false' do
+        subject.must_equal(false)
+      end
+
+      after { pool.unstub }
+    end
+  end
+
   describe '#spawn!' do
     before do
       @worker = Resque::Plugins::Resqued::Worker.new(pool: pool)

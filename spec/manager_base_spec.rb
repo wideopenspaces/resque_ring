@@ -20,6 +20,7 @@ describe Resque::Plugins::Resqued::Manager do
 
     context 'with config file given' do
       let(:config) { './spec/support/config_with_delay.yml' }
+      let(:mgr) { Resque::Plugins::Resqued::Manager.new(config: config) }
       subject { Resque::Plugins::Resqued::Manager.new(config: config) }
 
       it 'sets the delay option specified' do
@@ -31,7 +32,7 @@ describe Resque::Plugins::Resqued::Manager do
       end
 
       context 'with a worker group called indexing' do
-        let(:mgr) { Resque::Plugins::Resqued::Manager.new(config: config) }
+
         subject { mgr.worker_groups }
 
         it 'contains a worker group called indexing' do
@@ -52,7 +53,6 @@ describe Resque::Plugins::Resqued::Manager do
       end
 
       context 'on manage!' do
-        let(:mgr) { Resque::Plugins::Resqued::Manager.new(config: config) }
         let(:wkgrp) { MiniTest::Mock.new }
         let(:wkgrp_two) { MiniTest::Mock.new }
         let(:worker_groups) { { 'test' => wkgrp, 'me' => wkgrp_two } }
@@ -69,6 +69,16 @@ describe Resque::Plugins::Resqued::Manager do
         after do
           worker_groups.each_value { |wg| wg.verify }
         end
+      end
+
+      context '#run!' do
+        before { mgr.expects(:manage!).returns(true) }
+
+        it 'calls manage!' do
+          mgr.run!
+        end
+
+        after { mgr.unstub }
       end
     end
   end
