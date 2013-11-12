@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'resqued/redis_registry'
 
 describe Resque::Plugins::Resqued::RedisRegistry do
-  let(:mock_redis)  { $mock_redis }
+  let(:mock_redis)  { MOCK_REDIS }
   let(:registry)    { Resque::Plugins::Resqued::RedisRegistry.new({}) }
   let(:prefix)      { "#{Resque::Plugins::Resqued::RedisRegistry::PREFIX}:test" }
 
