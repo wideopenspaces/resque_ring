@@ -1,6 +1,6 @@
 module Resque
   module Plugins
-    module Resqued
+    module ResqueRing
       class WorkerGroup
         extend HattrAccessor
 
@@ -60,7 +60,7 @@ module Resque
 
         # @return [Pool] the pool of workers for this WorkerGroup
         def pool
-          @pool ||= Resque::Plugins::Resqued::Pool.new(@options[:pool].merge(worker_group: self))
+          @pool ||= Resque::Plugins::ResqueRing::Pool.new(@options[:pool].merge(worker_group: self))
         end
 
         # @return [Boolean] true if all associated queues are empty

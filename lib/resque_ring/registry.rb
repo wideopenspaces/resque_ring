@@ -1,6 +1,6 @@
 module Resque
   module Plugins
-    module Resqued
+    module ResqueRing
       module Registry
         HOST = `hostname`.strip.freeze
 

@@ -1,6 +1,6 @@
 module Resque
   module Plugins
-    module Resqued
+    module ResqueRing
       class Queue
         # @return [String] the name of this Queue in Resque
         attr_reader :name

@@ -1,6 +1,6 @@
 module Resque
   module Plugins
-    module Resqued
+    module ResqueRing
       class Pool
         extend HattrAccessor
 
@@ -139,7 +139,7 @@ module Resque
         end
 
         def spawn!
-          worker = Resque::Plugins::Resqued::Worker.new(worker_options)
+          worker = Resque::Plugins::ResqueRing::Worker.new(worker_options)
           worker.start!
           register(worker) if worker.alive?
         end

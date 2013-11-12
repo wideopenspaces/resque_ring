@@ -2,7 +2,7 @@ require 'yaml'
 
 module Resque
   module Plugins
-    module Resqued
+    module ResqueRing
       class Manager
         # @return [Hash{Symbol => String}] the options
         #   used to create the Manager

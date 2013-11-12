@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'resqued/version'
+require 'resque_ring/version'
 
 Gem::Specification.new do |s|
-  s.name          = 'resqued'
-  s.version       = Resqued::VERSION
+  s.name          = 'resque_ring'
+  s.version       = ResqueRing::VERSION
   s.authors       = ['Mila Jacob Stetser']
   s.email         = ['jake@wideopenspac.es']
   s.summary       = %q{Autoscaling pool manager for resque workers.}

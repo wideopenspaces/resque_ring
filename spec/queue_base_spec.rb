@@ -1,12 +1,12 @@
 require 'spec_helper'
 require './spec/support/hash_queue_store'
 
-describe Resque::Plugins::Resqued::Queue do
-  let(:mgr) { Resque::Plugins::Resqued::Manager.new({}) }
+describe Resque::Plugins::ResqueRing::Queue do
+  let(:mgr) { Resque::Plugins::ResqueRing::Manager.new({}) }
   let(:options) { Hash.new.merge(manager: mgr) }
-  let(:wg) { Resque::Plugins::Resqued::WorkerGroup.new('indexing', options) }
+  let(:wg) { Resque::Plugins::ResqueRing::WorkerGroup.new('indexing', options) }
   let(:store) { HashQueueStore.new }
-  subject { Resque::Plugins::Resqued::Queue.new(name: 'test', worker_group: wg, store: store) }
+  subject { Resque::Plugins::ResqueRing::Queue.new(name: 'test', worker_group: wg, store: store) }
 
   it 'knows its name' do
     subject.name.must_equal('test')

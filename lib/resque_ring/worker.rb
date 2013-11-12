@@ -3,7 +3,7 @@ require 'childprocess'
 # A managed worker process.
 module Resque
   module Plugins
-    module Resqued
+    module ResqueRing
       class Worker
         extend Forwardable
         def_delegators :process, :pid, :alive?, :exited?
