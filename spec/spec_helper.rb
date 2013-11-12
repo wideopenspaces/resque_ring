@@ -1,7 +1,9 @@
 # Coverage
 if ENV['CI']
   require 'coveralls'
-  Coveralls.wear!
+  Coveralls.wear! do
+    add_filter "/spec"
+  end
 else
   require 'simplecov'
   SimpleCov.start do
