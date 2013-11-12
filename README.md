@@ -1,8 +1,10 @@
 resqued
 ==============
 
-[![Build Status](https://travis-ci.org/wideopenspaces/resqued.png?branch=master)](https://travis-ci.org/wideopenspaces/resqued)
-[![Code Climate](https://codeclimate.com/github/wideopenspaces/resqued.png)](https://codeclimate.com/github/wideopenspaces/resqued)
+[![Dependencies](http://allthebadges.io/wideopenspaces/resqued/gemnasium.png)](http://allthebadges.io/wideopenspaces/resqued/gemnasium)
+[![Build Status](http://allthebadges.io/wideopenspaces/resqued/travis.png)](http://allthebadges.io/wideopenspaces/resqued/travis)
+[![Coverage](http://allthebadges.io/wideopenspaces/resqued/coveralls.png)](http://allthebadges.io/wideopenspaces/resqued/coveralls)
+[![Code Climate](http://allthebadges.io/wideopenspaces/resqued/code_climate.png)](http://allthebadges.io/wideopenspaces/resqued/code_climate)
 
 Autoscaling pool manager for resque workers.
 
