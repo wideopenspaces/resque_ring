@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'minitest-spec-context'
   s.add_development_dependency 'pry'
   s.add_development_dependency 'mocha'
+  s.add_development_dependency 'mock_redis'
 
   s.add_dependency 'resque', ['>= 1.15.0', '< 2.0']
   s.add_dependency 'madhattr', '0.5.0'

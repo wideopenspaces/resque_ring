@@ -17,3 +17,8 @@ require 'minitest/pride'
 require 'minitest-spec-context'
 
 require 'mocha/setup'
+
+# In tests, mock out all Redis calls
+require 'mock_redis'
+$mock_redis = MockRedis.new
+Redis.stubs(:new).returns($mock_redis)
