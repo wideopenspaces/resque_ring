@@ -1,10 +1,10 @@
 require 'spec_helper'
 require './spec/support/hash_queue_store'
 
-describe Resque::Plugins::ResqueRing::WorkerGroup do
-  let(:mgr) { Resque::Plugins::ResqueRing::Manager.new({}) }
+describe ResqueRing::WorkerGroup do
+  let(:mgr) { ResqueRing::Manager.new({}) }
   let(:options) { Hash.new.merge(manager: mgr) }
-  subject { Resque::Plugins::ResqueRing::WorkerGroup.new('indexing', options) }
+  subject { ResqueRing::WorkerGroup.new('indexing', options) }
 
   it 'stores a reference to its manager' do
     subject.manager.must_equal mgr
@@ -12,9 +12,9 @@ describe Resque::Plugins::ResqueRing::WorkerGroup do
 
   context 'queues' do
     let(:store) { HashQueueStore.new }
-    let(:wg) { Resque::Plugins::ResqueRing::WorkerGroup.new('indexing', options) }
-    let(:queue_a) { Resque::Plugins::ResqueRing::Queue.new(name: 'queue_a', worker_group: wg, store: store) }
-    let(:queue_b) { Resque::Plugins::ResqueRing::Queue.new(name: 'queue_b', worker_group: wg, store: store) }
+    let(:wg) { ResqueRing::WorkerGroup.new('indexing', options) }
+    let(:queue_a) { ResqueRing::Queue.new(name: 'queue_a', worker_group: wg, store: store) }
+    let(:queue_b) { ResqueRing::Queue.new(name: 'queue_b', worker_group: wg, store: store) }
 
     before do
       store.queues['queue_a'] = 1
@@ -52,13 +52,13 @@ describe Resque::Plugins::ResqueRing::WorkerGroup do
     end
 
     it 'creates a Pool' do
-      subject.pool.class.must_equal Resque::Plugins::ResqueRing::Pool
+      subject.pool.class.must_equal ResqueRing::Pool
     end
   end
 
   context 'with a provided configuration' do
     let(:options) { file = Yambol.load_file('./spec/support/config_with_delay.yml')[:workers][:indexing] }
-    let(:wg) { Resque::Plugins::ResqueRing::WorkerGroup.new('indexing', options.merge(manager: mgr)) }
+    let(:wg) { ResqueRing::WorkerGroup.new('indexing', options.merge(manager: mgr)) }
     subject { wg }
 
     it 'knows its spawn command' do
@@ -94,7 +94,7 @@ describe Resque::Plugins::ResqueRing::WorkerGroup do
     end
 
     it 'creates a Pool' do
-      subject.pool.must_be_instance_of Resque::Plugins::ResqueRing::Pool
+      subject.pool.must_be_instance_of ResqueRing::Pool
     end
 
     context 'when #manage! is called' do

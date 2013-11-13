@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-describe Resque::Plugins::ResqueRing::Worker do
+describe ResqueRing::Worker do
   context 'a new worker' do
     context 'initialized with a pool' do
-      let(:pool) { Resque::Plugins::ResqueRing::Pool.new({}) }
-      let(:worker) { Resque::Plugins::ResqueRing::Worker.new(pool: pool) }
+      let(:pool) { ResqueRing::Pool.new({}) }
+      let(:worker) { ResqueRing::Worker.new(pool: pool) }
 
       subject { worker }
 
@@ -14,7 +14,7 @@ describe Resque::Plugins::ResqueRing::Worker do
 
       context 'with a spawner given' do
         let(:args) { ['ruby', '-e', 'sleep'] }
-        let(:worker) { Resque::Plugins::ResqueRing::Worker.new(pool: pool, spawner: args, env: { rails_env: 'test' }) }
+        let(:worker) { ResqueRing::Worker.new(pool: pool, spawner: args, env: { rails_env: 'test' }) }
         let(:process) { ChildProcess.new }
 
         before do

@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe Resque::Plugins::ResqueRing::Manager do
+describe ResqueRing::Manager do
   context 'a new instance' do
     context 'with no options specified' do
-      subject { Resque::Plugins::ResqueRing::Manager.new }
+      subject { ResqueRing::Manager.new }
 
       it 'responds to #run!' do
         subject.must_respond_to(:run!)
@@ -14,14 +14,14 @@ describe Resque::Plugins::ResqueRing::Manager do
       end
 
       it 'has a registry' do
-        subject.registry.must_be_kind_of(Resque::Plugins::ResqueRing::Registry)
+        subject.registry.must_be_kind_of(ResqueRing::Registry)
       end
     end
 
     context 'with config file given' do
       let(:config) { './spec/support/config_with_delay.yml' }
-      let(:mgr) { Resque::Plugins::ResqueRing::Manager.new(config: config) }
-      subject { Resque::Plugins::ResqueRing::Manager.new(config: config) }
+      let(:mgr) { ResqueRing::Manager.new(config: config) }
+      subject { ResqueRing::Manager.new(config: config) }
 
       it 'sets the delay option specified' do
         subject.delay.must_equal(60)
@@ -43,7 +43,7 @@ describe Resque::Plugins::ResqueRing::Manager do
           subject { mgr.worker_groups[:indexing] }
 
           it 'is a WorkerGroup' do
-            subject.must_be_instance_of Resque::Plugins::ResqueRing::WorkerGroup
+            subject.must_be_instance_of ResqueRing::WorkerGroup
           end
 
           it 'is named with its key' do
