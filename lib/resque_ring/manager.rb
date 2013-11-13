@@ -22,19 +22,13 @@ module ResqueRing
     #   the location of the config file.
     # @return [Object] a new instance of Manager
     def initialize(options = {})
-      @options = options
-      @worker_groups = {}
-      load_registry(options.delete(:redis))
+      @options        = options
+      @worker_groups  = {}
 
-      config = load_config_file(options[:config]) if options[:config]
-    end
+      load_config_file(options[:config])
 
-    # Kicks off the manage cycle, sleeps, and then
-    # calls {Manager#run! itself} again
-    def run!
-      manage!
-      # sleep delay
-      # run!
+      prepare_registry
+      prepare_resque
     end
 
     # Instructs each WorkerGroup to manage its own workers
@@ -49,27 +43,46 @@ module ResqueRing
     # @param config [String] a string representing the location of
     #   the config file
     def load_config_file(config)
-      @config_file ||= Yambol.load_file(config)
+      @config_file ||= Yambol.load_file(config) if config
       if @config_file
         set_delay(@config_file[:delay])
         set_worker_groups(@config_file[:workers])
+        set_redis(@config_file[:redis])
+      else
+        set_redis({}) # use default Redis config
       end
     end
 
-    # Loads the registry with the proper options for redis
+    # Loads redis with the proper options for redis
     # @param redis_options [Hash] a hash containing the host
     #   and port of the redis server
-    def load_registry(redis_options)
-      unless redis_options.is_a?(Hash) && redis_options.keys.include?(:host, :port)
+    # @return [Redis] a redis instance
+    def load_redis(redis_options)
+      unless redis_options.is_a?(Hash) && redis_options.keys.include?([:host, :port])
         redis_options = { host: 'localhost', port: 6379 }
       end
-      @registry = RedisRegistry.new(redis_options)
+      @redis = Redis.new(redis_options)
+    end
+
+    # Creates a new registry
+    # @return [RedisRegistry] a RedisRegistry instance
+    def prepare_registry
+      @registry = RedisRegistry.new(@redis)
+    end
+
+    # Sets the Redis instance for Resque
+    def prepare_resque
+      Resque.redis = @redis
     end
 
     # Sets the time the script waits before calling #run! again
     # @param delay [Integer] time to wait, in seconds
     def set_delay(delay)
       @delay = delay || 120
+    end
+
+    def set_redis(redis_options)
+      @redis = load_redis(redis_options)
     end
 
     # Instantiates and collects new WorkerGroups based on config

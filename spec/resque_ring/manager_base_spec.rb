@@ -5,8 +5,8 @@ describe ResqueRing::Manager do
     context 'with no options specified' do
       subject { ResqueRing::Manager.new }
 
-      it 'responds to #run!' do
-        subject.must_respond_to(:run!)
+      it 'responds to #manage!' do
+        subject.must_respond_to(:manage!)
       end
 
       it 'sets an accessor for options that defaults to an empty hash' do
@@ -69,16 +69,6 @@ describe ResqueRing::Manager do
         after do
           worker_groups.each_value { |wg| wg.verify }
         end
-      end
-
-      context '#run!' do
-        before { mgr.expects(:manage!).returns(true) }
-
-        it 'calls manage!' do
-          mgr.run!
-        end
-
-        after { mgr.unstub }
       end
     end
   end

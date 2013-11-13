@@ -7,11 +7,9 @@ module ResqueRing
     extend Forwardable
     def_delegators :@redis, :get, :set, :sadd, :srem, :incr, :decr
 
-    # @param redis_options [Hash] a hash of options for the redis instance
-    # @option redis_options [String] :host the server where redis is running
-    # @option redis_options [Integer, String] :port the port redis is running on
-    def initialize(redis_options)
-      @redis = Redis.new(redis_options)
+    # @param redis_instance [Redis] a Redis instance, or something entirely compatible
+    def initialize(redis_instance)
+      @redis = Redis.new(redis_instance)
     end
 
     # Deletes all our keys associated with namespace from Redis.
