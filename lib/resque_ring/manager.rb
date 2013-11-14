@@ -1,5 +1,5 @@
 require 'yaml'
-
+require 'yell'
 module ResqueRing
   class Manager
     # @return [Hash{Symbol => String}] the options
@@ -29,6 +29,7 @@ module ResqueRing
 
       prepare_registry
       prepare_resque
+      prepare_logger(options[:logfile])
     end
 
     def run!
@@ -45,7 +46,7 @@ module ResqueRing
     # Instructs each WorkerGroup to manage its own workers
     # by calling {WorkerGroup#manage!}
     def manage!
-      puts "Time to make the donuts"
+      $logger.info "Time to make the donuts"
       worker_groups.each_value { |wg| wg.manage! }
     end
 
@@ -74,6 +75,14 @@ module ResqueRing
         redis_options = { host: 'localhost', port: 6379 }
       end
       @redis = Redis.new(redis_options)
+    end
+
+    def prepare_logger(logfile = nil)
+      logfile ||= 'resque_ring.log'
+      $logger = Yell.new do |l|
+        l.adapter :file, logfile, level: [:debug, :info, :warn]
+        l.adapter STDERR, level: [:error, :fatal]
+      end
     end
 
     # Creates a new registry

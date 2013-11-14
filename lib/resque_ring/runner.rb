@@ -9,7 +9,6 @@ module SignalHandler
       signal = sig.to_s.upcase
       begin
         trap(signal) {
-          puts self.inspect
           send handler_opts[:with], signal
         }
       rescue ArgumentError
@@ -22,7 +21,7 @@ module SignalHandler
   #   interceptors :hup => :reload!, :usr1 => :downsize!
   def intercepts(signals)
     signals.each do |signal, interceptor|
-      intercept(signal, with: interceptor)
+      intercept signal, with: interceptor
     end
   end
 end
@@ -76,7 +75,6 @@ module ResqueRing
     end
 
     def self.retire!(signal = 'kill signal')
-      puts "#{signal} received"
       exit
     end
 
