@@ -31,9 +31,21 @@ module ResqueRing
       prepare_resque
     end
 
+    def run!
+      manage!
+      sleep delay
+    end
+
+    def retire!
+      worker_groups.each_value do |wg|
+        wg.retire!
+      end
+    end
+
     # Instructs each WorkerGroup to manage its own workers
     # by calling {WorkerGroup#manage!}
     def manage!
+      puts "Time to make the donuts"
       worker_groups.each_value { |wg| wg.manage! }
     end
 

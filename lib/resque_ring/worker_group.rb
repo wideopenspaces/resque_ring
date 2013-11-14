@@ -56,6 +56,12 @@ module ResqueRing
       pool.manage!
     end
 
+    # Instructs a {Pool} to shut down all of its workers
+    def retire!
+      puts "downsizing the worker group: #{name}"
+      pool.downsize
+    end
+
     # @return [Pool] the pool of workers for this WorkerGroup
     def pool
       @pool ||= ResqueRing::Pool.new(@options[:pool].merge(worker_group: self))

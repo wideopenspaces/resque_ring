@@ -9,7 +9,7 @@ module ResqueRing
 
     # @param redis_instance [Redis] a Redis instance, or something entirely compatible
     def initialize(redis_instance)
-      @redis = Redis.new(redis_instance)
+      @redis = redis_instance
     end
 
     # Deletes all our keys associated with namespace from Redis.
