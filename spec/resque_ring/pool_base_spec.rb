@@ -207,14 +207,14 @@ describe ResqueRing::Pool do
     subject { pool.min_workers_spawned? }
 
     context 'when worker processes are greater than min' do
-      before { pool.expects(:worker_processes).returns([1,2,3]) }
+      before { pool.instance_variable_set(:@workers, [1,2,3]) }
       it 'returns true' do
         subject.must_equal(true)
       end
     end
 
     context 'when worker_processes are the same as min' do
-      before { pool.expects(:worker_processes).returns([3]) }
+      before { pool.instance_variable_set(:@workers, [3]) }
       it 'returns true' do
         subject.must_equal(true)
       end

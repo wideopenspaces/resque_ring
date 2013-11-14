@@ -74,7 +74,7 @@ module ResqueRing
 
     # @return [Integer] sum of sizes of all associated queues
     def queues_total
-      queues.values.map(&:size).reduce(:+)
+      queues.values.map(&:size).reduce(:+) || 0
     end
 
     # @return [Registry] the {Registry} associated with this
@@ -131,7 +131,7 @@ module ResqueRing
 
       return if queues.nil?
       queues.each do |q|
-        @queues.store(q, Queue.new(name: q, worker_group: self))
+        @queues.store(q, Queue.new(name: q, worker_group: self, store: Resque))
       end
     end
 

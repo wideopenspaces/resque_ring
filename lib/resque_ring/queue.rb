@@ -24,7 +24,7 @@ module ResqueRing
 
     # @return [Integer] the size of this queue in Resque
     def size
-      store.size(name) rescue 0
+      store.size(name)
     end
 
     # @return [String] a simple representation of the instance

@@ -2,7 +2,7 @@ module ResqueRing
   class RedisRegistry
     include Registry
 
-    PREFIX = 'ResqueRing'
+    PREFIX = 'resque_ring'
 
     extend Forwardable
     def_delegators :@redis, :get, :set, :sadd, :srem, :incr, :decr

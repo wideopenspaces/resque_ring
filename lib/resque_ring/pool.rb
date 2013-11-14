@@ -99,7 +99,7 @@ module ResqueRing
     # @return [Boolean] true if {#worker_processes} spawned
     #   is greater than {#min}
     def min_workers_spawned?
-      worker_processes.size >= min
+      workers.size >= min
     end
 
     # @return [Boolean] true if {#worker_processes} spawned
@@ -129,6 +129,7 @@ module ResqueRing
     end
 
     def despawn_if_necessary
+      return unless @workers.size > min
       despawn! if worker_group.wants_to_remove_workers?
     end
 
