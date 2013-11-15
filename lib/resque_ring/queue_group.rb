@@ -45,9 +45,7 @@ module ResqueRing
     #   fetch names of all matching queues in redis
     #   before loading up the list of queues
     def prepare(queues)
-      queues.each do |q|
-        @queues << Queue.new(name: q, store: Resque)
-      end
+      @queues = queues.collect { |q| Queue.new(name: q, store: Resque) }
     end
   end
 end

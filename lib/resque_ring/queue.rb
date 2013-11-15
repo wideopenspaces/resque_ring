@@ -13,8 +13,8 @@ module ResqueRing
     # @param options [Hash] the options, including name,
     #  and {Resque} instance for this queue
     def initialize(options = {})
-      @name = options.delete(:name)
-      @store = options.fetch(:store, Resque)
+      @name   = options.fetch(:name)
+      @store  = options.fetch(:store, Resque)
     end
 
     # @return [Integer] the size of this queue in Resque
@@ -25,7 +25,7 @@ module ResqueRing
     # @return [Boolean] true if the queue is empty
     # @todo see if we can use Resque's #empty
     def empty?
-      size == 0
+      size.zero?
     end
 
     # @return [String] a simple representation of the instance
