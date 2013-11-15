@@ -7,24 +7,25 @@ module ResqueRing
     # @return [String] the name of the queue
     alias :to_s :name
 
-    # @return [WorkerGroup] the {WorkerGroup} that owns this Queue
-    attr_reader :worker_group
-
     # @return [Resque] an instance of {Resque}
     attr_reader :store
 
     # @param options [Hash] the options, including name,
-    #  parent {WorkerGroup} and {Resque} instance
-    #  for this queue
+    #  and {Resque} instance for this queue
     def initialize(options = {})
       @name = options.delete(:name)
-      @worker_group = options.delete(:worker_group)
-      @store = options.delete(:store)
+      @store = options.fetch(:store, Resque)
     end
 
     # @return [Integer] the size of this queue in Resque
     def size
       store.size(name)
+    end
+
+    # @return [Boolean] true if the queue is empty
+    # @todo see if we can use Resque's #empty
+    def empty?
+      size == 0
     end
 
     # @return [String] a simple representation of the instance

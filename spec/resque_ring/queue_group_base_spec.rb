@@ -12,11 +12,11 @@ describe ResqueRing::QueueGroup do
       subject { ResqueRing::QueueGroup.new('queue_1', 'queue_2') }
 
       it 'creates and stores the queues' do
-        subject.queues.each_value.map(&:to_s).must_equal(['queue_1', 'queue_2'])
+        subject.map(&:to_s).must_equal(['queue_1', 'queue_2'])
       end
 
       it 'creates a Queue object for each queue' do
-        subject.queues.each_value { |q| q.must_be_instance_of(ResqueRing::Queue) }
+        subject.each { |q| q.must_be_instance_of(ResqueRing::Queue) }
       end
     end
   end
@@ -27,7 +27,7 @@ describe ResqueRing::QueueGroup do
       store.queues['queue_a'] = 1
       store.queues['queue_b'] = 3
 
-      qg.instance_variable_set('@queues', { 'queue_a' => queue_a, 'queue_b' => queue_b })
+      qg.instance_variable_set('@queues', [queue_a, queue_b])
     end
 
     context 'with no arguments' do
@@ -49,7 +49,7 @@ describe ResqueRing::QueueGroup do
 
   describe '#names' do
     before do
-      qg.instance_variable_set('@queues', { 'queue_a' => queue_a, 'queue_b' => queue_b })
+      qg.instance_variable_set('@queues', [queue_a, queue_b])
     end
 
     subject { qg.names }
@@ -64,7 +64,7 @@ describe ResqueRing::QueueGroup do
       store.queues['queue_a'] = 0
       store.queues['queue_b'] = 0
 
-      qg.instance_variable_set('@queues', { 'queue_a' => queue_a, 'queue_b' => queue_b })
+      qg.instance_variable_set('@queues', [queue_a, queue_b])
     end
 
     subject { qg.empty? }

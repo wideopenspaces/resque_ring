@@ -137,7 +137,7 @@ describe ResqueRing::WorkerGroup do
         before { wg.expects(:remove_when_idle).returns(true) }
 
         context 'when queues are empty' do
-          before { wg.expects(:queues_total).returns(0)}
+          before { wg.queues.expects(:empty?).returns(true)}
 
           it 'returns true' do
             subject.must_equal(true)
@@ -147,7 +147,7 @@ describe ResqueRing::WorkerGroup do
         end
 
         context 'when queues are not empty' do
-          before { wg.queues.expects(:size).returns(10) }
+          before { wg.queues.expects(:empty?).returns(false) }
 
           it 'returns false' do
             subject.must_equal(false)

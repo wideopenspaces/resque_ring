@@ -4,16 +4,11 @@ require './spec/support/hash_queue_store'
 describe ResqueRing::Queue do
   let(:mgr) { ResqueRing::Manager.new({}) }
   let(:options) { Hash.new.merge(manager: mgr) }
-  let(:wg) { ResqueRing::WorkerGroup.new('indexing', options) }
   let(:store) { HashQueueStore.new }
-  subject { ResqueRing::Queue.new(name: 'test', worker_group: wg, store: store) }
+  subject { ResqueRing::Queue.new(name: 'test', store: store) }
 
   it 'knows its name' do
     subject.name.must_equal('test')
-  end
-
-  it 'knows its worker_group' do
-    subject.worker_group.must_equal(wg)
   end
 
   context '#to_s' do
