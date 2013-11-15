@@ -8,8 +8,8 @@ module ResqueRing
     # @return [Manager] {Manager} class for this WorkerGroup
     attr_reader :manager
 
-    # @return [Hash{String => Queue}] a hash containing
-    #   the {Queue} instances managed by this
+    # @return [QueueGroup] a {QueueGroup} containing
+    #   the {Queue} instances watched by this
     #   WorkerGroup, organized by name
     attr_reader :queues
 

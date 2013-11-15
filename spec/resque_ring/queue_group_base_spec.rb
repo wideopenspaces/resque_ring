@@ -2,10 +2,10 @@ require 'spec_helper'
 require './spec/support/hash_queue_store'
 
 describe ResqueRing::QueueGroup do
-  let(:store) { HashQueueStore.new }
+  let(:store)   { HashQueueStore.new }
   let(:queue_a) { ResqueRing::Queue.new(name: 'queue_a', store: store) }
   let(:queue_b) { ResqueRing::Queue.new(name: 'queue_b', store: store) }
-  let(:qg) { ResqueRing::QueueGroup.new }
+  let(:qg)      { ResqueRing::QueueGroup.new }
 
   context 'a new QueueGroup' do
     context 'given a list of queues' do

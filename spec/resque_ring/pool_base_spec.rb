@@ -1,10 +1,10 @@
 require 'spec_helper'
 
 describe ResqueRing::Pool do
-  let(:manager) { ResqueRing::Manager.new }
-  let(:worker_group) { ResqueRing::WorkerGroup.new('test', manager: manager) }
-  let(:options) { Hash.new.merge(worker_group: worker_group) }
-  let(:pool) { ResqueRing::Pool.new(options) }
+  let(:manager)       { ResqueRing::Manager.new }
+  let(:worker_group)  { ResqueRing::WorkerGroup.new('test', manager: manager) }
+  let(:options)       { Hash.new.merge(worker_group: worker_group) }
+  let(:pool)          { ResqueRing::Pool.new(options) }
 
   subject { pool }
 
@@ -13,8 +13,8 @@ describe ResqueRing::Pool do
   end
 
   context 'through the registry' do
-    let(:worker) { ResqueRing::Worker.new(pool: pool) }
-    let(:fake_pid) { 1001 }
+    let(:worker)        { ResqueRing::Worker.new(pool: pool) }
+    let(:fake_pid)      { 1001 }
     let(:localized_pid) { "#{manager.registry.host}:1001" }
 
     it 'can tell how many workers are active' do

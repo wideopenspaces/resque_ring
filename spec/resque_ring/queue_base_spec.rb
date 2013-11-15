@@ -21,6 +21,12 @@ describe ResqueRing::Queue do
     it 'returns its size as 0' do
       subject.size.must_equal(0)
     end
+
+    describe '#empty?' do
+      it 'returns true' do
+        subject.empty?.must_equal(true)
+      end
+    end
   end
 
   context 'with a non-empty queue' do
@@ -30,6 +36,12 @@ describe ResqueRing::Queue do
 
     it 'returns its size appropriately' do
       subject.size.must_equal(3)
+    end
+
+    describe '#empty?' do
+      it 'returns false' do
+        subject.empty?.must_equal(false)
+      end
     end
   end
 end

@@ -19,9 +19,9 @@ describe ResqueRing::Manager do
     end
 
     context 'with config file given' do
-      let(:config) { './spec/support/config_with_delay.yml' }
-      let(:mgr) { ResqueRing::Manager.new(config: config) }
-      subject { ResqueRing::Manager.new(config: config) }
+      let(:config)  { './spec/support/config_with_delay.yml' }
+      let(:mgr)     { ResqueRing::Manager.new(config: config) }
+      subject       { ResqueRing::Manager.new(config: config) }
 
       it 'sets the delay option specified' do
         subject.delay.must_equal(60)
@@ -53,8 +53,8 @@ describe ResqueRing::Manager do
       end
 
       context 'on manage!' do
-        let(:wkgrp) { MiniTest::Mock.new }
-        let(:wkgrp_two) { MiniTest::Mock.new }
+        let(:wkgrp)         { MiniTest::Mock.new }
+        let(:wkgrp_two)     { MiniTest::Mock.new }
         let(:worker_groups) { { 'test' => wkgrp, 'me' => wkgrp_two } }
 
         before do

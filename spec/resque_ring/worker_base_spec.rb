@@ -3,8 +3,8 @@ require 'spec_helper'
 describe ResqueRing::Worker do
   context 'a new worker' do
     context 'initialized with a pool' do
-      let(:pool) { ResqueRing::Pool.new({}) }
-      let(:worker) { ResqueRing::Worker.new(pool: pool) }
+      let(:pool)    { ResqueRing::Pool.new({}) }
+      let(:worker)  { ResqueRing::Worker.new(pool: pool) }
 
       subject { worker }
 
@@ -13,8 +13,8 @@ describe ResqueRing::Worker do
       end
 
       context 'with a spawner given' do
-        let(:args) { ['ruby', '-e', 'sleep'] }
-        let(:worker) { ResqueRing::Worker.new(pool: pool, spawner: args, env: { rails_env: 'test' }) }
+        let(:args)    { ['ruby', '-e', 'sleep'] }
+        let(:worker)  { ResqueRing::Worker.new(pool: pool, spawner: args, env: { rails_env: 'test' }) }
         let(:process) { ChildProcess.new }
 
         before do

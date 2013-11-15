@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe ResqueRing::WorkerGroup do
-  let(:mgr) { ResqueRing::Manager.new({}) }
+  let(:mgr)     { ResqueRing::Manager.new({}) }
   let(:options) { Hash.new.merge(manager: mgr) }
-  subject { ResqueRing::WorkerGroup.new('indexing', options) }
+  subject       { ResqueRing::WorkerGroup.new('indexing', options) }
 
   it 'stores a reference to its manager' do
     subject.manager.must_equal mgr
@@ -33,8 +33,8 @@ describe ResqueRing::WorkerGroup do
 
   context 'with a provided configuration' do
     let(:options) { file = Yambol.load_file('./spec/support/config_with_delay.yml')[:workers][:indexing] }
-    let(:wg) { ResqueRing::WorkerGroup.new('indexing', options.merge(manager: mgr)) }
-    subject { wg }
+    let(:wg)      { ResqueRing::WorkerGroup.new('indexing', options.merge(manager: mgr)) }
+    subject       { wg }
 
     it 'knows its spawn command' do
       subject.spawn_command.must_equal options[:spawner][:command]
