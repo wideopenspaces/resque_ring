@@ -2,7 +2,7 @@ require 'thor'
 require 'resque_ring'
 require 'pry'
 
-include 'resque_ring/utilities/signal_handler'
+require 'resque_ring/utilities/signal_handler'
 
 module ResqueRing
   class Runner < Thor
