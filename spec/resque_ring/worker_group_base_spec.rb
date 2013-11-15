@@ -1,5 +1,4 @@
 require 'spec_helper'
-require './spec/support/hash_queue_store'
 
 describe ResqueRing::WorkerGroup do
   let(:mgr) { ResqueRing::Manager.new({}) }
@@ -8,30 +7,6 @@ describe ResqueRing::WorkerGroup do
 
   it 'stores a reference to its manager' do
     subject.manager.must_equal mgr
-  end
-
-  context 'queues' do
-    let(:store) { HashQueueStore.new }
-    let(:wg) { ResqueRing::WorkerGroup.new('indexing', options) }
-    let(:queue_a) { ResqueRing::Queue.new(name: 'queue_a', worker_group: wg, store: store) }
-    let(:queue_b) { ResqueRing::Queue.new(name: 'queue_b', worker_group: wg, store: store) }
-
-    before do
-      store.queues['queue_a'] = 1
-      store.queues['queue_b'] = 3
-
-      wg.instance_variable_set('@queues', { 'queue_a' => queue_a, 'queue_b' => queue_b })
-    end
-
-    subject { wg }
-
-    it 'can get the number of jobs in a single queue' do
-      subject.queues['queue_a'].size.must_equal(1)
-    end
-
-    it 'can get the total jobs in all watched queues' do
-      subject.queues_total.must_equal(4)
-    end
   end
 
   context 'with no provided configuration' do
@@ -48,7 +23,7 @@ describe ResqueRing::WorkerGroup do
     end
 
     it 'defaults to no watched queues' do
-      subject.queues.must_equal({})
+      subject.queues.count.must_equal 0
     end
 
     it 'creates a Pool' do
@@ -86,11 +61,11 @@ describe ResqueRing::WorkerGroup do
     end
 
     it 'has three watched queues' do
-      subject.queues.size.must_equal options[:queues].size
+      subject.queues.count.must_equal options[:queues].size
     end
 
     it 'includes the proper queues' do
-      subject.queues.keys.must_equal options[:queues]
+      subject.queues.names.must_equal options[:queues]
     end
 
     it 'creates a Pool' do
@@ -112,24 +87,12 @@ describe ResqueRing::WorkerGroup do
       after { pool.verify }
     end
 
-    context '#queues_are_empty?' do
-      context 'if all queues have no items' do
-        before { wg.stubs(:queues_total).returns(0) }
-
-        it 'returns true' do
-          wg.queues_are_empty?.must_equal(true)
-        end
-
-        after { wg.unstub(:queues_total) }
-      end
-    end
-
     context '#wants_to_add_workers?' do
       subject { wg.wants_to_add_workers? }
 
       context 'when queues_total greater than threshold' do
         before do
-          wg.stubs(:queues_total).returns(100)
+          wg.queues.stubs(:size).returns(100)
           wg.stubs(:threshold).returns(50)
         end
 
@@ -184,7 +147,7 @@ describe ResqueRing::WorkerGroup do
         end
 
         context 'when queues are not empty' do
-          before { wg.expects(:queues_total).returns(10) }
+          before { wg.queues.expects(:size).returns(10) }
 
           it 'returns false' do
             subject.must_equal(false)
@@ -230,7 +193,7 @@ describe ResqueRing::WorkerGroup do
     context '#spawner' do
       context 'if command includes {{queues}}' do
         it 'returns spawn command with queues inserted' do
-          subject.spawner.must_equal options[:spawner][:command].each { |c| c.gsub!("{{queues}}", "QUEUES=#{subject.queues.map(&:to_s).join(',')}") }
+          subject.spawner.must_equal options[:spawner][:command].each { |c| c.gsub!("{{queues}}", "QUEUES=#{subject.queues.names.join(',')}") }
         end
       end
     end
