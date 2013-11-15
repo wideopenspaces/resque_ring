@@ -1,5 +1,6 @@
 require 'yaml'
-require 'yell'
+require 'resque_ring/utilities/logger'
+
 module ResqueRing
   class Manager
     # @return [Hash{Symbol => String}] the options
@@ -78,11 +79,7 @@ module ResqueRing
     end
 
     def prepare_logger(logfile = nil)
-      logfile ||= 'resque_ring.log'
-      $logger = Yell.new do |l|
-        l.adapter :file, logfile, level: [:debug, :info, :warn]
-        l.adapter STDERR, level: [:error, :fatal]
-      end
+      $logger = ResqueRing::Utilities::Logger.new(logfile)
     end
 
     # Creates a new registry

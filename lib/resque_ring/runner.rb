@@ -2,34 +2,12 @@ require 'thor'
 require 'resque_ring'
 require 'pry'
 
-module SignalHandler
-  def intercept(*args)
-    handler_opts = args.pop
-    args.each do |sig|
-      signal = sig.to_s.upcase
-      begin
-        trap(signal) {
-          send handler_opts[:with], signal
-        }
-      rescue ArgumentError
-        warn "Signal (#{signal}) is not supported. Sorry, ol' chap."
-      end
-    end
-  end
-
-  # example:
-  #   interceptors :hup => :reload!, :usr1 => :downsize!
-  def intercepts(signals)
-    signals.each do |signal, interceptor|
-      intercept signal, with: interceptor
-    end
-  end
-end
+include 'resque_ring/utilities/signal_handler'
 
 module ResqueRing
   class Runner < Thor
     include Thor::Actions
-    extend SignalHandler
+    extend ResqueRing::Utilities::SignalHandler
 
     intercept :int, :term, :quit, :with => :retire!
     intercepts :hup => :reload!, :usr1 => :downsize!,
