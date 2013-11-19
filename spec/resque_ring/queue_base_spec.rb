@@ -11,9 +11,15 @@ describe ResqueRing::Queue do
     subject.name.must_equal('test')
   end
 
-  context '#to_s' do
+  describe '#to_s' do
     it 'returns the name of the queue' do
       subject.to_s.must_equal('test')
+    end
+  end
+
+  describe '#inspect' do
+    it 'returns a simple representation of the object' do
+      subject.inspect.must_equal("Queue:#{subject.object_id}:#{subject.name}:#{subject.size}")
     end
   end
 

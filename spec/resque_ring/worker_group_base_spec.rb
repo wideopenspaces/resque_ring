@@ -87,7 +87,19 @@ describe ResqueRing::WorkerGroup do
       after { pool.verify }
     end
 
-    context '#wants_to_add_workers?' do
+    describe '#retire!' do
+      it 'notifies what it is doing' do
+        $logger.expects(:info).with("downsizing the worker group: #{wg.name}")
+        wg.retire!
+      end
+
+      it 'tells the pool to downsize' do
+        wg.pool.expects(:downsize)
+        wg.retire!
+      end
+    end
+
+    describe '#wants_to_add_workers?' do
       subject { wg.wants_to_add_workers? }
 
       context 'when queues_total greater than threshold' do
@@ -130,7 +142,7 @@ describe ResqueRing::WorkerGroup do
       end
     end
 
-    context '#wants_to_remove_workers?' do
+    describe '#wants_to_remove_workers?' do
       subject { wg.wants_to_remove_workers? }
 
       context 'when remove_when_idle is true' do
@@ -170,7 +182,7 @@ describe ResqueRing::WorkerGroup do
       end
     end
 
-    context '#worker_options' do
+    describe '#worker_options' do
       subject { wg.worker_options }
 
       it 'includes the proper keys' do
@@ -190,7 +202,7 @@ describe ResqueRing::WorkerGroup do
       end
     end
 
-    context '#spawner' do
+    describe '#spawner' do
       context 'if command includes {{queues}}' do
         it 'returns spawn command with queues inserted' do
           subject.spawner.must_equal options[:spawner][:command].each { |c| c.gsub!("{{queues}}", "QUEUES=#{subject.queues.names.join(',')}") }

@@ -13,6 +13,8 @@ module ResqueRing
       @queues.size
     end
 
+    # Turn this class into an Enumerator, yielding
+    # the contents of @queues
     def each(&block)
       @queues.each(&block)
     end

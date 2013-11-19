@@ -30,6 +30,7 @@ Autoscaling pool manager for resque workers.
   * Age of worker
   * Memory usage
   * Time to process? (deviation from avg TTP?)
+  * Wildcard queues?
 
 
 Example configuration:

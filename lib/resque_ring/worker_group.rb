@@ -115,10 +115,6 @@ module ResqueRing
 
     private
 
-    def build_queues(queues)
-      @queues = ResqueRing::QueueGroup.new(*queues)
-    end
-
     def defaults
       {
         spawn_rate:       1,

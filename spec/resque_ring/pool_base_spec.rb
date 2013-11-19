@@ -180,6 +180,24 @@ describe ResqueRing::Pool do
     end
   end
 
+  describe '#downsize' do
+    before do
+      @worker = ResqueRing::Worker.new(pool: pool)
+      pool.instance_variable_set(:@workers, [@worker])
+      pool.expects(:despawn!).with(@worker)
+
+      $logger.expects(:info).with('terminating all workers')
+    end
+
+    it 'notifies that it is terminating workers' do
+      pool.downsize
+    end
+
+    it 'terminates known workers' do
+      pool.downsize
+    end
+  end
+
   describe '#able_to_spawn' do
     context 'when spawning is not blocked' do
       before { pool.expects(:spawn_blocked?).returns(false) }

@@ -22,7 +22,6 @@ describe ResqueRing::QueueGroup do
   end
 
   describe '#size' do
-
     before do
       store.queues['queue_a'] = 1
       store.queues['queue_b'] = 3
