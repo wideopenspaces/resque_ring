@@ -6,9 +6,7 @@ workers:
   indexing:
     spawner:
       command:
-        - zsh
-        - -c
-        - "{{queues}} bundle exec rake resque:work"
+        - 'ruby -e sleep'
       dir: /my/work/dir
       env:
         rails_env: development

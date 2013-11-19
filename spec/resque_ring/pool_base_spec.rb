@@ -1,10 +1,10 @@
 require 'spec_helper'
 
 describe ResqueRing::Pool do
-  let(:manager) { ResqueRing::Manager.new }
-  let(:worker_group) { ResqueRing::WorkerGroup.new('test', manager: manager) }
-  let(:options) { Hash.new.merge(worker_group: worker_group) }
-  let(:pool) { ResqueRing::Pool.new(options) }
+  let(:manager)       { ResqueRing::Manager.new }
+  let(:worker_group)  { ResqueRing::WorkerGroup.new('test', manager: manager) }
+  let(:options)       { Hash.new.merge(worker_group: worker_group) }
+  let(:pool)          { ResqueRing::Pool.new(options) }
 
   subject { pool }
 
@@ -13,8 +13,8 @@ describe ResqueRing::Pool do
   end
 
   context 'through the registry' do
-    let(:worker) { ResqueRing::Worker.new(pool: pool) }
-    let(:fake_pid) { 1001 }
+    let(:worker)        { ResqueRing::Worker.new(pool: pool) }
+    let(:fake_pid)      { 1001 }
     let(:localized_pid) { "#{manager.registry.host}:1001" }
 
     it 'can tell how many workers are active' do
@@ -180,6 +180,24 @@ describe ResqueRing::Pool do
     end
   end
 
+  describe '#downsize' do
+    before do
+      @worker = ResqueRing::Worker.new(pool: pool)
+      pool.instance_variable_set(:@workers, [@worker])
+      pool.expects(:despawn!).with(@worker)
+
+      $logger.expects(:info).with('terminating all workers')
+    end
+
+    it 'notifies that it is terminating workers' do
+      pool.downsize
+    end
+
+    it 'terminates known workers' do
+      pool.downsize
+    end
+  end
+
   describe '#able_to_spawn' do
     context 'when spawning is not blocked' do
       before { pool.expects(:spawn_blocked?).returns(false) }
@@ -207,14 +225,14 @@ describe ResqueRing::Pool do
     subject { pool.min_workers_spawned? }
 
     context 'when worker processes are greater than min' do
-      before { pool.expects(:worker_processes).returns([1,2,3]) }
+      before { pool.instance_variable_set(:@workers, [1,2,3]) }
       it 'returns true' do
         subject.must_equal(true)
       end
     end
 
     context 'when worker_processes are the same as min' do
-      before { pool.expects(:worker_processes).returns([3]) }
+      before { pool.instance_variable_set(:@workers, [3]) }
       it 'returns true' do
         subject.must_equal(true)
       end

@@ -38,6 +38,7 @@ module ResqueRing
 
     # Instructs a worker to die
     def stop!
+      $logger.info "stopping worker #{pid}"
       process.stop
     end
 

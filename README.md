@@ -18,10 +18,10 @@ Autoscaling pool manager for resque workers.
 - [x] Scale down to MIN workers when idle (even 0!)
 - [x] Configurable spawn throttling
 - [ ] Contractor Mode: start 1st worker automatically when items enter its queues.
-- [ ] Automatically manages and keeps track of workers it spawns
+- [x] Automatically manages and keeps track of workers it spawns
 - [ ] Track jobs processed, age & other data for each worker
 - [x] Communicates with workers through Resque/Redis
-- [ ] Manages worker pool sizes locally (1 server) and globally (across servers)
+- [x] Manages worker pool sizes locally (1 server) and globally (across servers)
 
 ### Later releases
 
@@ -30,6 +30,7 @@ Autoscaling pool manager for resque workers.
   * Age of worker
   * Memory usage
   * Time to process? (deviation from avg TTP?)
+  * Wildcard queues?
 
 
 Example configuration:

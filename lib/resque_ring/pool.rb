@@ -41,10 +41,17 @@ module ResqueRing
       spawn_if_necessary
     end
 
+    # Shut down all workers
+    def downsize
+      $logger.info "terminating all workers"
+      workers.each { |worker| despawn!(worker) }
+    end
+
     # Removes a worker from the {Registry}
     # associated with {#worker_group}
     # @param worker [Worker] the worker to be removed
     def deregister(worker)
+      $logger.info "removing worker #{worker.pid} from registry..."
       worker_group.registry.deregister(worker_group.name, worker.pid)
     end
 
@@ -92,7 +99,7 @@ module ResqueRing
     # @return [Boolean] true if {#worker_processes} spawned
     #   is greater than {#min}
     def min_workers_spawned?
-      worker_processes.size >= min
+      workers.size >= min
     end
 
     # @return [Boolean] true if {#worker_processes} spawned
@@ -122,24 +129,32 @@ module ResqueRing
     end
 
     def despawn_if_necessary
+      return unless @workers.size > min
       despawn! if worker_group.wants_to_remove_workers?
     end
 
-    def despawn!
-      worker_to_fire = @workers.pop
+    def despawn!(worker = nil)
+      worker_to_fire = worker || @workers.pop
       worker_to_fire.stop!
       deregister(worker_to_fire)
     end
 
     def spawn_if_necessary
-      spawn! and return unless min_workers_spawned?
+      $logger.info "checking to see if we need to spawn workers"
+      spawn_first and return unless min_workers_spawned?
       spawn! if worker_group.wants_to_add_workers? && room_for_more?
+    end
+
+    def spawn_first
+      $logger.info "spawning our initial worker(s)!"
+      spawn!
     end
 
     def spawn!
       worker = ResqueRing::Worker.new(worker_options)
       worker.start!
       register(worker) if worker.alive?
+      $logger.info "spawned worker: #{worker.pid}"
     end
 
     def worker_options

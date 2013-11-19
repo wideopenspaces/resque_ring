@@ -33,4 +33,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'madhattr', '0.5.1'
   s.add_dependency 'yambol', '1.0.0'
   s.add_dependency 'childprocess'
+  s.add_dependency 'thor'
+  s.add_dependency 'yell'
 end

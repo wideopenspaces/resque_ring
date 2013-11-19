@@ -1,4 +1,5 @@
 require 'yaml'
+require 'resque_ring/utilities/logger'
 
 module ResqueRing
   class Manager
@@ -13,10 +14,6 @@ module ResqueRing
     #   the manager manages, organized by name
     attr_reader :worker_groups
 
-    # @return [Registry] the backend store used for keeping
-    #   track of workers
-    attr_reader :registry
-
     # @param options [Hash] options for the Manager, usually
     #   including a key called config containing
     #   the location of the config file.
@@ -29,11 +26,28 @@ module ResqueRing
 
       prepare_registry
       prepare_resque
+      prepare_logger(options[:logfile])
+    end
+
+    # @return [Registry] the backend store used for keeping
+    #   track of workers
+    def registry; @@registry; end
+
+    def retire!
+      worker_groups.each_value do |wg|
+        wg.retire!
+      end
+    end
+
+    def run!
+      manage!
+      sleep delay
     end
 
     # Instructs each WorkerGroup to manage its own workers
     # by calling {WorkerGroup#manage!}
     def manage!
+      $logger.info "Time to make the donuts"
       worker_groups.each_value { |wg| wg.manage! }
     end
 
@@ -64,10 +78,14 @@ module ResqueRing
       @redis = Redis.new(redis_options)
     end
 
+    def prepare_logger(logfile = nil)
+      $logger = ResqueRing::Utilities::Logger.new(logfile)
+    end
+
     # Creates a new registry
     # @return [RedisRegistry] a RedisRegistry instance
     def prepare_registry
-      @registry = RedisRegistry.new(@redis)
+      @@registry = RedisRegistry.new(@redis)
     end
 
     # Sets the Redis instance for Resque

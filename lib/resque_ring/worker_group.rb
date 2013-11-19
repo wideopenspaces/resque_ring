@@ -8,8 +8,8 @@ module ResqueRing
     # @return [Manager] {Manager} class for this WorkerGroup
     attr_reader :manager
 
-    # @return [Hash{String => Queue}] a hash containing
-    #   the {Queue} instances managed by this
+    # @return [QueueGroup] a {QueueGroup} containing
+    #   the {Queue} instances watched by this
     #   WorkerGroup, organized by name
     attr_reader :queues
 
@@ -37,11 +37,10 @@ module ResqueRing
     # @param name [String] a name for this WorkerGroup
     # @param options [Hash] options for this WorkerGroup
     def initialize(name, options = {})
-      @name = name.to_s
-      @manager = options.delete(:manager)
-
-      build_queues(options.fetch(:queues, []))
-      @options = defaults.merge(options)
+      @name     = name.to_s
+      @manager  = options.delete(:manager)
+      @queues   = ResqueRing::QueueGroup.new(*options.fetch(:queues, []))
+      @options  = defaults.merge(options)
     end
 
     # A list of environment variables used when
@@ -56,19 +55,15 @@ module ResqueRing
       pool.manage!
     end
 
+    # Instructs a {Pool} to shut down all of its workers
+    def retire!
+      $logger.info "downsizing the worker group: #{name}"
+      pool.downsize
+    end
+
     # @return [Pool] the pool of workers for this WorkerGroup
     def pool
       @pool ||= ResqueRing::Pool.new(@options[:pool].merge(worker_group: self))
-    end
-
-    # @return [Boolean] true if all associated queues are empty
-    def queues_are_empty?
-      queues_total == 0
-    end
-
-    # @return [Integer] sum of sizes of all associated queues
-    def queues_total
-      queues.values.map(&:size).reduce(:+)
     end
 
     # @return [Registry] the {Registry} associated with this
@@ -90,20 +85,20 @@ module ResqueRing
     # @return [Array] an array of strings used by
     #   the {Pool} when spawning a {Worker}
     def spawner
-      spawn_command.collect { |c| c.gsub('{{queues}}', "QUEUES=#{queues.map(&:to_s).join(',')}") }
+      spawn_command.collect { |c| c.gsub('{{queues}}', "QUEUES=#{queues.names.join(',')}") }
     end
 
     # @return [Boolean] true if total items in all queues
     #   is greater than {#threshold} and the {Pool} is
     #   ready to spawn a new worker
     def wants_to_add_workers?
-      queues_total >= threshold && pool.able_to_spawn?
+      queues.size >= threshold && pool.able_to_spawn?
     end
 
     # @return [Boolean] true if all queues are empty
     #   and {#remove_when_idle} returns true
     def wants_to_remove_workers?
-      remove_when_idle && queues_are_empty?
+      remove_when_idle && queues.empty?
     end
 
     # @return [String] the working directory for
@@ -119,15 +114,6 @@ module ResqueRing
     end
 
     private
-
-    def build_queues(queues)
-      @queues ||= {}
-
-      return if queues.nil?
-      queues.each do |q|
-        @queues.store(q, Queue.new(name: q, worker_group: self))
-      end
-    end
 
     def defaults
       {
