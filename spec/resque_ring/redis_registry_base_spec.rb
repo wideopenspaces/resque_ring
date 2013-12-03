@@ -2,8 +2,8 @@ require 'spec_helper'
 require 'resque_ring/redis_registry'
 
 def redis_do(action, key_values)
-  key_values.each do |name,value|
-    MOCK_REDIS.send(action, [prefix,name.to_s].join(':'), value)
+  key_values.each do |name, value|
+    MOCK_REDIS.send(action, [prefix, name.to_s].join(':'), value)
   end
 end
 
