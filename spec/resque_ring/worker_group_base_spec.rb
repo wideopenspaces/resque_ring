@@ -32,7 +32,7 @@ describe ResqueRing::WorkerGroup do
   end
 
   context 'with a provided configuration' do
-    let(:options) { file = Yambol.load_file('./spec/support/config_with_delay.yml')[:workers][:indexing] }
+    let(:options) { Yambol.load_file('./spec/support/config_with_delay.yml')[:workers][:indexing] }
     let(:wg)      { ResqueRing::WorkerGroup.new('indexing', options.merge(manager: mgr)) }
     subject       { wg }
 
