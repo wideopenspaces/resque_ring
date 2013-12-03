@@ -89,8 +89,10 @@ describe ResqueRing::WorkerGroup do
 
     describe '#retire!' do
       it 'notifies what it is doing' do
-        $logger.expects(:info).with("downsizing the worker group: #{wg.name}")
+        ResqueRing::Utilities::Logger.expects(:info).with("downsizing the worker group: #{wg.name}")
+        ResqueRing::Utilities::Logger.expects(:info).with('terminating all workers')
         wg.retire!
+        ResqueRing::Utilities::Logger.unstub(:info)
       end
 
       it 'tells the pool to downsize' do

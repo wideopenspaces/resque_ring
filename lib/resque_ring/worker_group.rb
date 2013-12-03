@@ -57,7 +57,7 @@ module ResqueRing
 
     # Instructs a {Pool} to shut down all of its workers
     def retire!
-      $logger.info "downsizing the worker group: #{name}"
+      Utilities::Logger.info "downsizing the worker group: #{name}"
       pool.downsize
     end
 

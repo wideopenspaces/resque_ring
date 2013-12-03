@@ -47,7 +47,7 @@ module ResqueRing
     # Instructs each WorkerGroup to manage its own workers
     # by calling {WorkerGroup#manage!}
     def manage!
-      $logger.info "Time to make the donuts"
+      Utilities::Logger.info "Time to make the donuts"
       worker_groups.each_value { |wg| wg.manage! }
     end
 
@@ -79,7 +79,7 @@ module ResqueRing
     end
 
     def prepare_logger(logfile = nil)
-      $logger = ResqueRing::Utilities::Logger.new(logfile)
+      Utilities::Logger.logfile(logfile)
     end
 
     # Creates a new registry
