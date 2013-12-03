@@ -334,12 +334,15 @@ describe ResqueRing::Pool do
   end
 
   context 'with provided configuration' do
-    let(:options) { {
-      global_max:  15,
-      min:         2,
-      max:         4,
-      first_at:    10
-    } }
+    let(:options) do
+      {
+        global_max:  15,
+        min:         2,
+        max:         4,
+        first_at:    10
+      }
+    end
+
     subject { ResqueRing::Pool.new(options) }
 
     it 'sets proper global_max' do
