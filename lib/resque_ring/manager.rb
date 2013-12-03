@@ -47,7 +47,7 @@ module ResqueRing
     # Instructs each WorkerGroup to manage its own workers
     # by calling {WorkerGroup#manage!}
     def manage!
-      Utilities::Logger.info "Time to make the donuts"
+      Utilities::Logger.info 'Time to make the donuts'
       worker_groups.each_value { |wg| wg.manage! }
     end
 

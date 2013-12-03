@@ -43,7 +43,7 @@ module ResqueRing
 
     # Shut down all workers
     def downsize
-      Utilities::Logger.info "terminating all workers"
+      Utilities::Logger.info 'terminating all workers'
       workers.each { |worker| despawn!(worker) }
     end
 
@@ -140,13 +140,13 @@ module ResqueRing
     end
 
     def spawn_if_necessary
-      Utilities::Logger.info "checking to see if we need to spawn workers"
+      Utilities::Logger.info 'checking to see if we need to spawn workers'
       spawn_first and return unless min_workers_spawned?
       spawn! if worker_group.wants_to_add_workers? && room_for_more?
     end
 
     def spawn_first
-      Utilities::Logger.info "spawning our initial worker(s)!"
+      Utilities::Logger.info 'spawning our initial worker(s)!'
       spawn!
     end
 

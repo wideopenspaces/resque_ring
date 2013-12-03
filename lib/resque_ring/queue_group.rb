@@ -40,14 +40,14 @@ module ResqueRing
     private
 
     def queues_matching(name)
-      select { |queue| queue.name.match /\A#{name}\z/ }
+      select { |queue| queue.name.match(/\A#{name}\z/) }
     end
 
     # @todo check for wildcard queue names and
     #   fetch names of all matching queues in redis
     #   before loading up the list of queues
     def prepare(queues)
-      @queues = queues.collect { |q| Queue.new(name: q, store: Resque) }
+      @queues = queues.map { |q| Queue.new(name: q, store: Resque) }
     end
   end
 end
