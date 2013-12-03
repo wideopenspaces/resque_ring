@@ -59,7 +59,7 @@ module ResqueRing
       return unless env && env.size > 0
 
       reset_env!
-      env.each { |k,v| process.environment[k.upcase] = v } unless env.empty?
+      env.each { |k, v| process.environment[k.upcase] = v } unless env.empty?
     end
 
     def set_working_dir(cwd)
