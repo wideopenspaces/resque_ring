@@ -89,8 +89,10 @@ describe ResqueRing::WorkerGroup do
 
     describe '#retire!' do
       it 'notifies what it is doing' do
-        $logger.expects(:info).with("downsizing the worker group: #{wg.name}")
+        ResqueRing::Utilities::Logger.expects(:info).with("downsizing the worker group: #{wg.name}")
+        ResqueRing::Utilities::Logger.expects(:info).with('terminating all workers')
         wg.retire!
+        ResqueRing::Utilities::Logger.unstub(:info)
       end
 
       it 'tells the pool to downsize' do
@@ -149,7 +151,7 @@ describe ResqueRing::WorkerGroup do
         before { wg.expects(:remove_when_idle).returns(true) }
 
         context 'when queues are empty' do
-          before { wg.queues.expects(:empty?).returns(true)}
+          before { wg.queues.expects(:empty?).returns(true) }
 
           it 'returns true' do
             subject.must_equal(true)
@@ -205,7 +207,7 @@ describe ResqueRing::WorkerGroup do
     describe '#spawner' do
       context 'if command includes {{queues}}' do
         it 'returns spawn command with queues inserted' do
-          subject.spawner.must_equal options[:spawner][:command].each { |c| c.gsub!("{{queues}}", "QUEUES=#{subject.queues.names.join(',')}") }
+          subject.spawner.must_equal options[:spawner][:command].each { |c| c.gsub!('{{queues}}', "QUEUES=#{subject.queues.names.join(',')}") }
         end
       end
     end

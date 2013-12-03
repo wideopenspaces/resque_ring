@@ -1,6 +1,21 @@
 require 'spec_helper'
 require './spec/support/hash_queue_store'
 
+def qstore(queue_values = {})
+  queue_values.each do |queue, value|
+    store.queues[queue.to_s] = value
+  end
+end
+
+def set_queues(*queues)
+  qg.instance_variable_set('@queues', queues)
+end
+
+def prep_queues(queues = {})
+  qstore queues
+  set_queues queue_a, queue_b
+end
+
 describe ResqueRing::QueueGroup do
   let(:store)   { HashQueueStore.new }
   let(:queue_a) { ResqueRing::Queue.new(name: 'queue_a', store: store) }
@@ -21,13 +36,17 @@ describe ResqueRing::QueueGroup do
     end
   end
 
-  describe '#size' do
-    before do
-      store.queues['queue_a'] = 1
-      store.queues['queue_b'] = 3
+  describe '#names' do
+    before { set_queues queue_a, queue_b }
+    subject { qg.names }
 
-      qg.instance_variable_set('@queues', [queue_a, queue_b])
+    it 'returns an array of strings containing the queue names' do
+      subject.must_equal ['queue_a', 'queue_b']
     end
+  end
+
+  describe '#size' do
+    before { prep_queues queue_a: 1, queue_b: 3 }
 
     context 'with no arguments' do
       subject { qg.size }
@@ -46,26 +65,8 @@ describe ResqueRing::QueueGroup do
     end
   end
 
-  describe '#names' do
-    before do
-      qg.instance_variable_set('@queues', [queue_a, queue_b])
-    end
-
-    subject { qg.names }
-
-    it 'returns an array of strings containing the queue names' do
-      subject.must_equal ['queue_a', 'queue_b']
-    end
-  end
-
   describe '#empty?' do
-    before do
-      store.queues['queue_a'] = 0
-      store.queues['queue_b'] = 0
-
-      qg.instance_variable_set('@queues', [queue_a, queue_b])
-    end
-
+    before { prep_queues queue_a: 0, queue_b: 0 }
     subject { qg.empty? }
 
     it 'returns true if all queues are empty' do

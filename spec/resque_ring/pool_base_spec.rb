@@ -186,7 +186,7 @@ describe ResqueRing::Pool do
       pool.instance_variable_set(:@workers, [@worker])
       pool.expects(:despawn!).with(@worker)
 
-      $logger.expects(:info).with('terminating all workers')
+      ResqueRing::Utilities::Logger.expects(:info).with('terminating all workers')
     end
 
     it 'notifies that it is terminating workers' do
@@ -196,6 +196,8 @@ describe ResqueRing::Pool do
     it 'terminates known workers' do
       pool.downsize
     end
+
+    after { ResqueRing::Utilities::Logger.unstub(:info) }
   end
 
   describe '#able_to_spawn' do
@@ -225,7 +227,7 @@ describe ResqueRing::Pool do
     subject { pool.min_workers_spawned? }
 
     context 'when worker processes are greater than min' do
-      before { pool.instance_variable_set(:@workers, [1,2,3]) }
+      before { pool.instance_variable_set(:@workers, [1, 2, 3]) }
       it 'returns true' do
         subject.must_equal(true)
       end
@@ -265,7 +267,7 @@ describe ResqueRing::Pool do
     end
 
     context 'when local workers greater than max' do
-      before { pool.expects(:workers).returns(['test']*10) }
+      before { pool.expects(:workers).returns(['test'] * 10) }
 
       it 'returns false' do
         subject.must_equal(false)
@@ -278,7 +280,7 @@ describe ResqueRing::Pool do
       before do
         pool.expects(:workers).returns(['test'])
         pool.expects(:global_max).twice.returns(3)
-        pool.expects(:worker_processes).returns(['test']*3)
+        pool.expects(:worker_processes).returns(['test'] * 3)
       end
 
       it 'returns false' do
@@ -332,12 +334,15 @@ describe ResqueRing::Pool do
   end
 
   context 'with provided configuration' do
-    let(:options) { {
-      global_max:  15,
-      min:         2,
-      max:         4,
-      first_at:    10
-    } }
+    let(:options) do
+      {
+        global_max:  15,
+        min:         2,
+        max:         4,
+        first_at:    10
+      }
+    end
+
     subject { ResqueRing::Pool.new(options) }
 
     it 'sets proper global_max' do
