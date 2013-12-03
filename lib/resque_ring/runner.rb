@@ -5,6 +5,7 @@ require 'pry'
 require 'resque_ring/utilities/signal_handler'
 
 module ResqueRing
+  # The guts of the ResqueRing executable
   class Runner < Thor
     include Thor::Actions
     extend ResqueRing::Utilities::SignalHandler

@@ -1,4 +1,6 @@
 module ResqueRing
+  # Methods common to any Registry implementation.
+  # Currently only in use by {RedisRegistry}
   module Registry
     HOST = `hostname`.strip.freeze
 

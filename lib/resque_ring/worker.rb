@@ -1,7 +1,7 @@
 require 'childprocess'
 
-# A managed worker process.
 module ResqueRing
+  # A managed worker process
   class Worker
     extend Forwardable
     def_delegators :process, :pid, :alive?, :exited?
