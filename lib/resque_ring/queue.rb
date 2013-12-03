@@ -1,4 +1,5 @@
 module ResqueRing
+  # a local representation of a Resque Queue
   class Queue
     # @return [String] the name of this Queue in Resque
     attr_reader :name

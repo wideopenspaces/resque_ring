@@ -1,5 +1,6 @@
 module ResqueRing
   module Utilities
+    # Methods for simply intercepting OS signals and responding to them with handlers
     module SignalHandler
       # takes a list of signals to intercept with a handler
       # the list should terminate with a Hash with one option, with: handler

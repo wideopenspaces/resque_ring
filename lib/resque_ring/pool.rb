@@ -1,4 +1,5 @@
 module ResqueRing
+  # A managed group of Resque workers
   class Pool
     extend HattrAccessor
 

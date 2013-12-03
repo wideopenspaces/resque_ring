@@ -2,6 +2,8 @@ require 'yaml'
 require 'resque_ring/utilities/logger'
 
 module ResqueRing
+  # Manages the operations of ResqueRing by loading configuration
+  # and telling appropriate worker groups when to manage themselves.
   class Manager
     # @return [Hash{Symbol => String}] the options
     #   used to create the Manager

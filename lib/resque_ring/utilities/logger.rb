@@ -1,6 +1,7 @@
 require 'yell'
 module ResqueRing
   module Utilities
+    # A ResqueRing logger, implemented with Yell
     class Logger
       include Singleton
       extend Forwardable
