@@ -267,7 +267,7 @@ describe ResqueRing::Pool do
     end
 
     context 'when local workers greater than max' do
-      before { pool.expects(:workers).returns(['test']*10) }
+      before { pool.expects(:workers).returns(['test'] * 10) }
 
       it 'returns false' do
         subject.must_equal(false)
@@ -280,7 +280,7 @@ describe ResqueRing::Pool do
       before do
         pool.expects(:workers).returns(['test'])
         pool.expects(:global_max).twice.returns(3)
-        pool.expects(:worker_processes).returns(['test']*3)
+        pool.expects(:worker_processes).returns(['test'] * 3)
       end
 
       it 'returns false' do
