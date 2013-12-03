@@ -1,6 +1,12 @@
 require 'spec_helper'
 require 'resque_ring/redis_registry'
 
+def redis_do(action, key_values)
+  key_values.each do |name,value|
+    MOCK_REDIS.send(action, [prefix,name.to_s].join(':'), value)
+  end
+end
+
 describe ResqueRing::RedisRegistry do
   let(:registry)    { ResqueRing::RedisRegistry.new(Redis.new) }
   let(:prefix)      { "#{ResqueRing::RedisRegistry::PREFIX}:test" }
@@ -13,8 +19,7 @@ describe ResqueRing::RedisRegistry do
 
   context 'reset!' do
     before do
-      MOCK_REDIS.set("#{prefix}:my_fake_key", 42)
-      MOCK_REDIS.set("#{prefix}:another_key", 42)
+      redis_do :set, my_fake_key: 42, another_key: 42
       registry.reset!('test')
     end
 
@@ -59,9 +64,7 @@ describe ResqueRing::RedisRegistry do
   end
 
   context '#list' do
-    before do
-      MOCK_REDIS.sadd("#{prefix}:my_set", 'aa')
-    end
+    before { redis_do :sadd, my_set: 'aa' }
 
     it 'gets the members of the appropriate set' do
       registry.list('test', 'my_set').must_include('aa')
@@ -69,9 +72,7 @@ describe ResqueRing::RedisRegistry do
   end
 
   context '#current' do
-    before do
-      MOCK_REDIS.set("#{prefix}:my_key", 'fake')
-    end
+    before { redis_do :set, my_key: 'fake' }
 
     it 'gets the value of the appropriate key' do
       registry.current('test', 'my_key').must_equal('fake')
