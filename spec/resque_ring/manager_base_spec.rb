@@ -51,37 +51,38 @@ describe ResqueRing::Manager do
         end
       end
 
-      describe '#manage!' do
+      context 'management functions' do
         let(:wkgrp)         { MiniTest::Mock.new }
         let(:wkgrp_two)     { MiniTest::Mock.new }
         let(:worker_groups) { { 'test' => wkgrp, 'me' => wkgrp_two } }
 
         before do
           mgr.instance_variable_set(:@worker_groups, worker_groups)
-          worker_groups.each_value { |wg| wg.expect(:manage!, true) }
         end
 
-        it 'tells worker groups to manage themselves' do
-          mgr.manage! # actual assertions happen in before/after here
+        describe '#manage!' do
+          before do
+            worker_groups.each_value { |wg| wg.expect(:manage!, true) }
+          end
+
+          it 'tells worker groups to manage themselves' do
+            mgr.manage! # actual assertions happen in before/after here
+          end
         end
 
-        after do
-          worker_groups.each_value { |wg| wg.verify }
-        end
-      end
+        describe '#retire' do
+          let(:wkgrp)         { MiniTest::Mock.new }
+          let(:wkgrp_two)     { MiniTest::Mock.new }
+          let(:worker_groups) { { 'test' => wkgrp, 'me' => wkgrp_two } }
 
-      describe '#retire' do
-        let(:wkgrp)         { MiniTest::Mock.new }
-        let(:wkgrp_two)     { MiniTest::Mock.new }
-        let(:worker_groups) { { 'test' => wkgrp, 'me' => wkgrp_two } }
+          before do
+            mgr.instance_variable_set(:@worker_groups, worker_groups)
+            worker_groups.each_value { |wg| wg.expect(:retire!, true) }
+          end
 
-        before do
-          mgr.instance_variable_set(:@worker_groups, worker_groups)
-          worker_groups.each_value { |wg| wg.expect(:retire!, true) }
-        end
-
-        it 'tells each worker group to retire!' do
-          mgr.retire!
+          it 'tells each worker group to retire!' do
+            mgr.retire!
+          end
         end
 
         after do
