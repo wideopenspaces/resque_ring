@@ -1,6 +1,11 @@
 module ResqueRing
   module Utilities
     module SignalHandler
+      # takes a list of signals to intercept with a handler
+      # the list should terminate with a Hash with one option, with: handler
+      # @param args [Array] a list of signals with the last element a hash containing the handler
+      # @example
+      #   intercept :int, with: :interrupt_handler
       def intercept(*args)
         handler_opts = args.pop
         args.each do |sig|
@@ -13,7 +18,9 @@ module ResqueRing
         end
       end
 
-      # example:
+      # Takes a hash of signal/handler pairs and starts trapping the signals appropriately
+      # @param signals [Hash] A hash of signals mapped to their appropriate handlers
+      # @example
       #   interceptors :hup => :reload!, :usr1 => :downsize!
       def intercepts(signals)
         signals.each { |sig, responder| intercept sig, with: responder }
