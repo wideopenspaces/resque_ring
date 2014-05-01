@@ -96,6 +96,13 @@ module ResqueRing
       queues.size >= threshold && pool.able_to_spawn?
     end
 
+    # @return [Boolean] true if total items in all queues
+    #   is greater than {#first_at} and the {Pool} is
+    #   ready to spawn a new worker
+    def wants_to_hire_first_worker?
+      queues.size >= pool.first_at && pool.able_to_spawn?
+    end
+
     # @return [Boolean] true if all queues are empty
     #   and {#remove_when_idle} returns true
     def wants_to_remove_workers?
