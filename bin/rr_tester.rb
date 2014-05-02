@@ -28,7 +28,7 @@ end
 class ResqueFiller
   def self.fill(number_entries = 100)
     number_entries.times do |i|
-      Resque::enqueue(RedisEmptier, i)
+      Resque::enqueue(ResqueEmptier, i)
     end
   end
 end
@@ -42,11 +42,8 @@ class RRTester < Thor
     type:       :string,
     aliases:    '-c'
   def fill
-    get_size
-    start_server?
-
-    fill_queue if @size
-    start_server if @manage
+    fill_queue if get_size
+    start_server if start_server?
   end
 
   desc 'empty', 'start a simple client'
