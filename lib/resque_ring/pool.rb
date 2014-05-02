@@ -109,6 +109,11 @@ module ResqueRing
       under_local_max? && under_global_max?
     end
 
+    def spawn_first_worker?
+      return true if first_at && workers.size.zero? && worker_group.wants_to_hire_first_worker?
+      !min_workers_spawned?
+    end
+
     private
 
     def under_local_max?
@@ -142,7 +147,7 @@ module ResqueRing
 
     def spawn_if_necessary
       Utilities::Logger.info 'checking to see if we need to spawn workers'
-      spawn_first and return unless min_workers_spawned?
+      spawn_first and return if spawn_first_worker?
       spawn! if worker_group.wants_to_add_workers? && room_for_more?
     end
 
@@ -155,6 +160,7 @@ module ResqueRing
       worker = ResqueRing::Worker.new(worker_options)
       worker.start!
       register(worker) if worker.alive?
+
       Utilities::Logger.info "spawned worker: #{worker.pid}"
     end
 

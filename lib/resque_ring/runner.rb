@@ -31,6 +31,8 @@ module ResqueRing
       default:    './resque_ring.log'
     def start
       @@manager = ResqueRing::Manager.new(options)
+      at_exit { @@manager.retire! }
+
       loop { @@manager.run! }
     end
 
@@ -58,7 +60,5 @@ module ResqueRing
     def self.retire!(signal = 'kill signal')
       exit
     end
-
-    at_exit { @@manager.retire! }
   end
 end

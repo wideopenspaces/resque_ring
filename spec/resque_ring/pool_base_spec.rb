@@ -222,6 +222,54 @@ describe ResqueRing::Pool do
     end
   end
 
+  describe '#spawn_first_worker?' do
+    before do
+      pool.stubs(:min).returns(0)
+      pool.worker_group.pool.stubs(:able_to_spawn?).returns(true)
+    end
+
+    subject { pool.spawn_first_worker? }
+
+    context 'when worker processes are greater than 0' do
+      before { pool.instance_variable_set(:@workers, [1, 2]) }
+      it 'returns false' do
+        subject.must_equal(false)
+      end
+    end
+
+    context 'when no workers are present' do
+      before { pool.instance_variable_set(:@workers, []) }
+      context 'and first_at is present' do
+        before do
+          pool.stubs(:first_at).returns(5)
+          pool.worker_group.pool.stubs(:first_at).returns(5)
+        end
+
+        context 'and queue size is greater than first_at' do
+          before { pool.worker_group.queues.stubs(:size).returns(10) }
+          it 'returns true' do
+            subject.must_equal(true)
+          end
+        end
+
+        context 'and queue size is equal to first_at' do
+          before { pool.worker_group.queues.stubs(:size).returns(5) }
+          it 'returns true' do
+            subject.must_equal(true)
+          end
+        end
+
+        context 'and queue size is less than first_at' do
+          before { pool.worker_group.queues.stubs(:size).returns(1) }
+          it 'returns false' do
+            subject.must_equal(false)
+          end
+        end
+      end
+    end
+  end
+
+
   describe '#min_workers_spawned?' do
     before  { pool.stubs(:min).returns(1) }
     subject { pool.min_workers_spawned? }
