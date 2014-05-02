@@ -47,17 +47,17 @@ workers:
       dir: /this/is/my/work/dir
       env:
         rails_env: development
-    wait_time: 120 # don't start another worker more often than this (seconds); will only ever start one worker per configured queue within time set above in delay
-    threshold: 100# If queue gets bigger than this, start another worker until max workers reached
-    spawn_rate: 1 # How many workers to spawn at a time, defaults to 1
+    wait_time: 120         # don't start another worker more often than this (seconds); will only ever start one worker per configured queue within time set above in delay
+    threshold: 100         # If queue gets bigger than this, start another worker until max workers reached
+    spawn_rate: 1          # How many workers to spawn at a time, defaults to 1
     remove_when_idle: true # start removing workers when queue is idle
-    queues:  # list of queues this worker listens for
+    queues:                # list of queues this worker listens for
       - queue_the_first
       - queue_tee_pie
       - queue_the_music
     pool:
       global_max: 15 # Max workers across all servers; default 0 (no limit)
-      min: 1 # How many to start initially, 0 means no workers until queue; defaults to 1
-      max: 5 # The most we'll ever start; defaults to 5
-      first_at: 1  # Use with min_workers 0; fewer than fire_at jobs in queue will not start any workers. Defaults to 1, and is only checked if min_workers is 0
+      min: 1         # How many to start initially, 0 means no workers until queue; defaults to 1
+      max: 5         # The most we'll ever start; defaults to 5
+      first_at: 1    # Use with min_workers 0; fewer than fire_at jobs in queue will not start any workers. Defaults to 1, and is only checked if min_workers is 0
 ```
