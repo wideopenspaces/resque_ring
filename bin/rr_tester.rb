@@ -1,30 +1,34 @@
 require 'thor'
-require 'redis'
+require 'resque'
 require_relative '../lib/resque_ring'
+require_relative '../lib/resque/plugins/resque_ring/managed_job'
 
 $redis = Redis.new
 
-class RedisFiller
-  def self.fill(queue, number_entries = 100)
-    number_entries.times do |i|
-      $redis.rpush queue, i
-    end
+Resque.redis = 'localhost:6379'
+
+module Resque
+  def self.enqueue(*args)
+    super(*args)
   end
 end
 
-class RedisEmptier
-  def self.pop
-    $redis.lpop($queue)
-  end
+class ResqueEmptier
+  extend Resque::Plugins::ResqueRing::ManagedJob
 
-  def self.full?
-    $redis.llen($queue) > 0
-  end
+  @queue         = :queue_the_first
+  @worker_group  = 'indexing'
 
-  def self.empty!
-    loop do
-      puts "#{Process.pid} got #{self.pop}" if self.full?
-      sleep(rand(3))
+  def self.perform(item)
+    puts "#{Process.pid} got #{item}"
+    sleep(rand(3))
+  end
+end
+
+class ResqueFiller
+  def self.fill(number_entries = 100)
+    number_entries.times do |i|
+      Resque::enqueue(RedisEmptier, i)
     end
   end
 end
@@ -39,7 +43,6 @@ class RRTester < Thor
     aliases:    '-c'
   def fill
     get_size
-    get_queue
     start_server?
 
     fill_queue if @size
@@ -52,8 +55,8 @@ class RRTester < Thor
     type:       :string,
     aliases:    '-q'
   def empty
-    $queue = options[:queue]
-    RedisEmptier.empty!
+    queue = options[:queue]
+    Resque::Worker.new(queue).work
   end
 
   private
@@ -61,14 +64,9 @@ class RRTester < Thor
     @size = ask('How many queue items would you like to add?')
   end
 
-  def get_queue
-    @queue  = ask('What is the name of your queue?')
-    @queue  = "resque:queue:#{@queue}"
-  end
-
   def fill_queue
     say "Maximizing widget pipeline...", :yellow
-    RedisFiller.fill(@queue, @size.to_i)
+    ResqueFiller.fill(@size.to_i)
   end
 
   def start_server

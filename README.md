@@ -19,19 +19,18 @@ Autoscaling pool manager for resque workers.
 - [x] Configurable spawn throttling
 - [x] Contractor Mode: start 1st worker automatically when items enter its queues.
 - [x] Automatically manages and keeps track of workers it spawns
-- [ ] Track jobs processed, age & other data for each worker
+- [x] Track jobs processed, age & other data for each worker
+  - [x] Number of jobs processed
+  - [x] Age of worker
+  - [x] Memory usage
+  - [x] Time to process? (deviation from avg TTP?)
 - [x] Communicates with workers through Resque/Redis
 - [x] Manages worker pool sizes locally (1 server) and globally (across servers)
 
 ### Later releases
 
-* Ability to kill & respawn workers based on
-  * Number of jobs processed
-  * Age of worker
-  * Memory usage
-  * Time to process? (deviation from avg TTP?)
-  * Wildcard queues?
-
+- [ ] Ability to kill & respawn workers based on metrics above
+- [ ] Wildcard queues?
 
 Example configuration:
 
@@ -50,7 +49,7 @@ workers:
     wait_time: 120         # don't start another worker more often than this (seconds); will only ever start one worker per configured queue within time set above in delay
     threshold: 100         # If queue gets bigger than this, start another worker until max workers reached
     spawn_rate: 1          # How many workers to spawn at a time, defaults to 1
-    remove_when_idle: true # start removing workers when queue is idle
+    remove_when_idle: true # start removing workers when queue is idle (defaults to true)
     queues:                # list of queues this worker listens for
       - queue_the_first
       - queue_tee_pie

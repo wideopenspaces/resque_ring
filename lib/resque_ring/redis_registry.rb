@@ -7,6 +7,7 @@ module ResqueRing
 
     extend Forwardable
     def_delegators :@redis, :get, :set, :sadd, :srem, :incr, :decr
+    def_delegators :@redis, :hget, :hset, :hincrby, :hincrbyfloat
 
     # @param redis_instance [Redis] a Redis instance, or something entirely compatible
     def initialize(redis_instance)
