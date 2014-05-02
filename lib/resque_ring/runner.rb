@@ -46,7 +46,7 @@ module ResqueRing
 
     desc 'version', 'print version'
     def version
-      puts ResqueRing::VERSION
+      say ResqueRing::VERSION, :green
     end
 
     private
