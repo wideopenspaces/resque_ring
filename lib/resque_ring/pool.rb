@@ -110,7 +110,7 @@ module ResqueRing
     end
 
     def spawn_first_worker?
-      return true if workers.size.zero? && first_at && worker_group.wants_to_hire_first_worker?
+      return true if first_at && workers.size.zero? && worker_group.wants_to_hire_first_worker?
       !min_workers_spawned?
     end
 
@@ -147,7 +147,7 @@ module ResqueRing
 
     def spawn_if_necessary
       Utilities::Logger.info 'checking to see if we need to spawn workers'
-      spawn_first and return unless spawn_first_worker?
+      spawn_first and return if spawn_first_worker?
       spawn! if worker_group.wants_to_add_workers? && room_for_more?
     end
 
