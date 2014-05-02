@@ -35,25 +35,37 @@ module ResqueRing
       prepare_logger(options[:logfile])
     end
 
-    def retire!
-      worker_groups.each_value do |wg|
-        wg.retire!
-      end
+    # Instructs each WorkerGroup to manage its own workers
+    # by calling {WorkerGroup#manage!}
+    def manage!
+      Utilities::Logger.info 'Time to make the donuts'
+      each_worker_group { |wg| wg.manage! }
     end
 
+    # Instructs each WorkerGroup to shut down its workers
+    # by calling {WorkerGroup#retire!}
+    #
+    # Note this is a graceful exit and may take
+    # some time to shut down, as it waits
+    # for workers to finish their current task.
+    def retire!
+      each_worker_group { |wg| wg.retire! }
+    end
+
+    # Instructs WorkerGroups to manage & review workers
+    # and then waits a configurable amount of time
     def run!
       manage!
       sleep delay
     end
 
-    # Instructs each WorkerGroup to manage its own workers
-    # by calling {WorkerGroup#manage!}
-    def manage!
-      Utilities::Logger.info 'Time to make the donuts'
-      worker_groups.each_value { |wg| wg.manage! }
-    end
-
     private
+
+    # Provides a block for easy interaction with all
+    # of the worker_groups
+    def each_worker_group
+      worker_groups.each_value { |wg| yield(wg) }
+    end
 
     # Loads the contents of a YAML config file
     # @param config [String] a string representing the location of
@@ -77,7 +89,7 @@ module ResqueRing
       unless redis_options.is_a?(Hash) && redis_options.keys.include?([:host, :port])
         redis_options = { host: 'localhost', port: 6379 }
       end
-      @redis = Redis.new(redis_options)
+      Redis.new(redis_options)
     end
 
     def prepare_logger(logfile = nil)
@@ -114,4 +126,3 @@ module ResqueRing
     end
   end
 end
-

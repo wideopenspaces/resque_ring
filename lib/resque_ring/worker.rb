@@ -39,7 +39,8 @@ module ResqueRing
     # Instructs a worker to die
     def stop!
       Utilities::Logger.info "stopping worker #{pid}"
-      process.stop
+      process.stop(20) # Give worker some time to stop.
+      # TODO: Move stop timeout to the config?
     end
 
     private

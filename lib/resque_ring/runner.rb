@@ -11,10 +11,9 @@ module ResqueRing
     extend ResqueRing::Utilities::SignalHandler
 
     intercept :int, :term, :quit, with: :retire!
-    intercepts hup: :reload!,
-      usr1: :downsize!,
-      usr2: :pause,
-      cont: :unpause
+    intercepts hup: :reload!, usr1: :downsize!
+      # usr2: :pause
+      # cont: :unpause
 
     map '-v' => :version
     map '-i' => :install
@@ -30,10 +29,13 @@ module ResqueRing
       aliases:    '-l',
       default:    './resque_ring.log'
     def start
+      @@retired = false
       @@manager = ResqueRing::Manager.new(options)
-      at_exit { @@manager.retire! }
 
-      loop { @@manager.run! }
+      at_exit { @@manager.retire!  }
+      until retired? do
+        @@manager.run!
+      end
     end
 
     # desc 'install', 'install a sample config file'
@@ -51,14 +53,41 @@ module ResqueRing
 
     private
 
+    # Asks for a response with a default value
+    # if the response is empty
+    # @param statement [String] the question to be asked
+    # @param default [Object] the default value
+    # return [Object] the response or the default value
     def ask_with_default(statement, default, *args)
-      statement = "#{statement} [#{default}]"
-      response = ask(statement, *args)
+      statement  = "#{statement} [#{default}]"
+      response   = ask(statement, *args)
       response.empty? ? default : response
     end
 
-    def self.retire!(signal = 'kill signal')
-      exit
+    # Have we been told to retire?
+    # @return [Boolean] true or false
+    def retired?
+      defined?(@@retired) && @@retired == true
+    end
+
+    # Fires all workers and starts all over again
+    # with a new manager. This reloads the configuration
+    # file.
+    def self.reload!
+      @@manager.retire! && @@manager.start if defined?(@@manager)
+    end
+
+    # def self.pause!(signal = 'pause signal')
+    #   @@manager.furlough! if defined?(@@manager)
+    # end
+    #
+    # def self.continue!(signal = 'continue signal')
+    #   @@manager.continue! if defined?(@@manager)
+    # end
+
+    # Fires all workers and shuts down.
+    def self.retire!
+      @@retired = true; exit
     end
   end
 end
