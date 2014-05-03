@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'thor'
 require 'resque'
 require_relative '../lib/resque_ring'
@@ -20,7 +22,7 @@ class ResqueEmptier
   @worker_group  = 'indexing'
 
   def self.perform(item)
-    puts "#{Process.pid} got #{item}"
+    puts "#{Process.ppid} got #{item}"
     sleep(rand(3))
   end
 end
@@ -42,7 +44,10 @@ class RRTester < Thor
     type:       :string,
     aliases:    '-c'
   def fill
+    trap('HUP') { start_server }
+
     fill_queue if get_size
+
     start_server if start_server?
   end
 
@@ -53,6 +58,7 @@ class RRTester < Thor
     aliases:    '-q'
   def empty
     queue = options[:queue]
+
     Resque::Worker.new(queue).work
   end
 
@@ -62,11 +68,11 @@ class RRTester < Thor
   end
 
   def fill_queue
-    say "Maximizing widget pipeline...", :yellow
     ResqueFiller.fill(@size.to_i)
   end
 
   def start_server
+    say "Maximizing widget pipeline...", :yellow
     say "Initiating imminent actualization...", :green
     ResqueRing::Runner.start(['start'] + ARGV[1..-1])
   end
@@ -74,7 +80,6 @@ class RRTester < Thor
   def start_server?
     @manage = yes?('Start the manager?', :red)
   end
-
 end
 
 RRTester.start(ARGV)

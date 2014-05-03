@@ -1,10 +1,12 @@
-require 'yaml'
 require 'resque_ring/utilities/logger'
+require 'resque_ring/config'
 
 module ResqueRing
   # Manages the operations of ResqueRing by loading configuration
   # and telling appropriate worker groups when to manage themselves.
   class Manager
+    attr_reader :cfg
+
     # @return [Hash{Symbol => String}] the options
     #   used to create the Manager
     attr_reader :options
@@ -20,6 +22,8 @@ module ResqueRing
     #   track of workers
     attr_reader :registry
 
+    attr_reader :logger
+
     # @param options [Hash] options for the Manager, usually
     #   including a key called config containing
     #   the location of the config file.
@@ -28,7 +32,7 @@ module ResqueRing
       @options        = options
       @worker_groups  = {}
 
-      load_config_file(options[:config])
+      load_config(options[:config])
 
       prepare_registry
       prepare_resque
@@ -38,7 +42,7 @@ module ResqueRing
     # Instructs each WorkerGroup to manage its own workers
     # by calling {WorkerGroup#manage!}
     def manage!
-      Utilities::Logger.info 'Time to make the donuts'
+      Utilities::Logger.debug 'Time to make the donuts'
       each_worker_group { |wg| wg.manage! }
     end
 
@@ -67,15 +71,16 @@ module ResqueRing
       worker_groups.each_value { |wg| yield(wg) }
     end
 
-    # Loads the contents of a YAML config file
+    # Loads the config & sets global options
     # @param config [String] a string representing the location of
     #   the config file
-    def load_config_file(config)
-      @config_file ||= Yambol.load_file(config) if config
-      if @config_file
-        set_delay(@config_file[:delay])
-        set_worker_groups(@config_file[:workers])
-        set_redis(@config_file[:redis])
+    def load_config(config)
+      # @config_file ||= Yambol.load_file(config) if config
+      @cfg = ResqueRing::Config.new(config)
+      if cfg.loaded?
+        set_delay(cfg.delay)
+        set_worker_groups(cfg.workers)
+        set_redis(cfg.redis)
       else
         set_redis({}) # use default Redis config
       end
@@ -93,7 +98,7 @@ module ResqueRing
     end
 
     def prepare_logger(logfile = nil)
-      Utilities::Logger.logfile(logfile)
+      @logger = Utilities::Logger.logfile(logfile)
     end
 
     # Creates a new registry

@@ -32,7 +32,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'resque', ['>= 1.15.0', '< 2.0']
   s.add_dependency 'madhattr', '0.6.0'
   s.add_dependency 'yambol', '1.0.0'
-  s.add_dependency 'childprocess'
+  s.add_dependency 'childprocess', '0.5.3'
   s.add_dependency 'thor'
   s.add_dependency 'yell'
 end

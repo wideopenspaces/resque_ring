@@ -31,6 +31,7 @@ module ResqueRing
     def start
       @@retired = false
       @@manager = ResqueRing::Manager.new(options)
+      @@options ||= options
 
       at_exit { @@manager.retire!  }
       until retired? do
@@ -73,8 +74,8 @@ module ResqueRing
     # Fires all workers and starts all over again
     # with a new manager. This reloads the configuration
     # file.
-    def self.reload!
-      @@manager.retire! && @@manager.start if defined?(@@manager)
+    def self.reload!(signal = 'reload')
+      @@manager.retire! && start if defined?(@@manager)
     end
 
     # def self.pause!(signal = 'pause signal')
@@ -86,7 +87,7 @@ module ResqueRing
     # end
 
     # Fires all workers and shuts down.
-    def self.retire!
+    def self.retire!(signal = 'retire')
       @@retired = true; exit
     end
   end
