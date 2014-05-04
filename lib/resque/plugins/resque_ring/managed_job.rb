@@ -7,10 +7,6 @@ module Resque
     module ResqueRing
       module ManagedJob
         @@registry = ::ResqueRing::RedisRegistry.new(Resque.redis.redis)
-        # before_first_fork: store time of first fork
-        def before_first_fork_store_birthdate(*args)
-          @@registry.hset key, 'born_at', Time.now.utc
-        end
 
         # around_perform: measure & store TTP & total ttp
         # avg ttp is total_ttp / jobs_processed
@@ -38,10 +34,12 @@ module Resque
           `ps -o rss= -p #{ppid}`.chomp.to_i
         end
 
+        # Generates a ResqueRing-formatted key for queue access
         def key
           @@registry.send :_key, @worker_group, @@registry.localize(ppid)
         end
 
+        # Need to get PPID because of the forking.
         def ppid
           Process.ppid
         end
