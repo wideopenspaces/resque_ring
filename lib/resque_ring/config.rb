@@ -26,12 +26,6 @@ module ResqueRing
       end
     end
 
-    # Loads the config_file into an OpenStruct
-    # @return [OpenStruct] the config file as a struct
-    def load
-      @config = OpenStruct.new(load_yml)
-    end
-
     # Has the configuration been loaded?
     # @return [Boolean]
     def loaded?
@@ -56,6 +50,12 @@ module ResqueRing
     end
 
     private
+
+    # Loads the config_file into an OpenStruct
+    # @return [OpenStruct] the config file as a struct
+    def load
+      @config = OpenStruct.new(load_yml)
+    end
 
     # Loads config file into a symbolized hash
     # @return [Hash] the config file as a hash
