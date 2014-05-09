@@ -7,21 +7,22 @@ module ResqueRing
     extend Forwardable
     def_delegators :@config, :workers
 
-    REDIS_KEYS = [:host, :port]
+    REDIS_KEYS    = [:host, :port]
+    REDIS_DEFAULT = { host: 'localhost', port: 6379 }
 
     # @return [OpenStruct] the config as an OpenStruct
     attr_reader :config
 
     # @return [String] a string containing the path
     #   to the configuration file
-    attr_reader :config_file
+    attr_reader :source_file
 
     # @param config_file [String] a string containing a
     # path to the desired configuration file
     # @return [Config] a configuration object
     def initialize(config_file)
       if config_file
-        @config_file = config_file
+        @source_file = config_file
         load
       end
     end
@@ -42,14 +43,14 @@ module ResqueRing
     # Returns default redis values if not set
     # @return [Hash] including keys for :host & :port
     def redis
-      if @config.redis.is_a?(Hash) && @config.redis.keys?(:host, :port)
-        @config.redis
-      else
-        { host: 'localhost', port: 6379 }
-      end
+      redis_set? ? @config.redis : REDIS_DEFAULT
     end
 
     private
+
+    def redis_set?
+      @config.redis.is_a?(Hash) && @config.redis.keys?(:host, :port)
+    end
 
     # Loads the config_file into an OpenStruct
     # @return [OpenStruct] the config file as a struct
@@ -60,7 +61,7 @@ module ResqueRing
     # Loads config file into a symbolized hash
     # @return [Hash] the config file as a hash
     def load_yml
-      Yambol.load_file(config_file)
+      Yambol.load_file(source_file)
     end
   end
 end

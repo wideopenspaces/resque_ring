@@ -15,6 +15,10 @@ describe ResqueRing::Config do
         config.loaded?.must_equal(true)
       end
 
+      it 'sets config_file to the specified path' do
+        config.source_file.must_equal(config_file)
+      end
+
       context '#config' do
         it 'is an OpenStruct' do
           config.config.must_be_instance_of(OpenStruct)
