@@ -31,6 +31,10 @@ module ResqueRing
       build!
     end
 
+    def inspect
+      "resque-ring worker (#{object_id})"
+    end
+
     # Instructs a worker to start its process
     def start!
       process.start
@@ -47,6 +51,7 @@ module ResqueRing
 
     def build!
       @process = @process_mgr.build(*options[:spawner])
+      process.leader = true
 
       set_working_dir(options[:cwd])
       set_environment(options[:env])

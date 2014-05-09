@@ -46,6 +46,7 @@ class RRTester < Thor
   def fill
     trap('HUP') { start_server }
 
+    empty_redis if empty_redis?
     fill_queue if get_size
 
     start_server if start_server?
@@ -63,6 +64,15 @@ class RRTester < Thor
   end
 
   private
+
+  def empty_redis?
+    ask('Reset redis? (Warning! DELETES WHOLE REDIS DB!)')
+  end
+
+  def empty_redis
+    $redis.flushdb
+  end
+  
   def get_size
     @size = ask('How many queue items would you like to add?')
   end

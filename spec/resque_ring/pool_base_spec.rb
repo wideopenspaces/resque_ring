@@ -6,67 +6,72 @@ describe ResqueRing::Pool do
   let(:options)       { Hash.new.merge(worker_group: worker_group) }
   let(:pool)          { ResqueRing::Pool.new(options) }
 
-  subject { pool }
-
   it 'stores a reference to its worker_group' do
-    subject.worker_group.must_equal worker_group
+    pool.worker_group.must_equal worker_group
   end
 
   context 'through the registry' do
     let(:worker)        { ResqueRing::Worker.new(pool: pool) }
     let(:fake_pid)      { 1001 }
     let(:localized_pid) { "#{manager.registry.host}:1001" }
+    let(:pool)          { ResqueRing::Pool.new(options) }
 
     it 'can tell how many workers are active' do
-      subject.current_workers.must_equal(0)
+      pool.current_workers.must_equal(0)
     end
 
     it 'can list the pids of the active workers' do
-      subject.worker_processes.must_equal([])
+      pool.worker_processes.must_equal([])
     end
 
     context 'when registering workers' do
+      let(:worker)        { ResqueRing::Worker.new(pool: pool) }
       before do
         manager.instance_variable_set(:@delay, 30)
         manager.registry.reset!(worker_group.name)
 
         worker.expects(:pid).returns(fake_pid)
-        subject.register(worker)
+        pool.register(worker)
       end
 
       it 'stores the pid' do
-        subject.worker_processes.must_include(localized_pid)
+        pool.worker_processes.must_include(localized_pid)
       end
 
       it 'increments the worker count' do
-        subject.current_workers.must_equal(1)
+        pool.current_workers.must_equal(1)
       end
 
       it 'updates last_spawned' do
-        subject.last_spawned.wont_be_nil
+        pool.last_spawned.wont_be_nil
       end
 
       it 'blocks the spawner' do
-        subject.spawn_blocked?.must_equal(true)
+        pool.spawn_blocked?.must_equal(true)
       end
 
-      after { worker.unstub(:pid) }
+      after do
+        worker.unstub(:pid)
+      end
     end
 
     context 'when de-registering workers' do
+      let(:pool)          { ResqueRing::Pool.new(options) }
+      let(:worker)        { ResqueRing::Worker.new(pool: pool) }
+
       before do
         manager.registry.reset!(worker_group.name)
         worker.expects(:pid).at_least_once.returns(fake_pid)
-        subject.register(worker)
-        subject.deregister(worker)
+        pool.register(worker)
+        pool.deregister(worker)
       end
 
       it 'removes the pid' do
-        subject.worker_processes.wont_include(localized_pid)
+        pool.worker_processes.wont_include(localized_pid)
       end
 
-      it 'decrements the worker count' do
-        subject.current_workers.must_equal(0)
+      it 'decrements the worker count in redis' do
+        pool.current_workers.must_equal(0)
       end
 
       after { worker.unstub(:pid) }
@@ -74,6 +79,8 @@ describe ResqueRing::Pool do
   end
 
   describe '#manage' do
+    let(:pool)          { ResqueRing::Pool.new(options) }
+
     subject { pool.manage! }
 
     context 'when worker_group wants to remove workers' do
@@ -181,6 +188,8 @@ describe ResqueRing::Pool do
   end
 
   describe '#downsize' do
+    let(:pool)          { ResqueRing::Pool.new(options) }
+
     before do
       @worker = ResqueRing::Worker.new(pool: pool)
       pool.instance_variable_set(:@workers, [@worker])
@@ -223,6 +232,8 @@ describe ResqueRing::Pool do
   end
 
   describe '#spawn_first_worker?' do
+    let(:pool)          { ResqueRing::Pool.new(options) }
+
     before do
       pool.stubs(:min).returns(0)
       pool.worker_group.pool.stubs(:able_to_spawn?).returns(true)
@@ -271,6 +282,8 @@ describe ResqueRing::Pool do
 
 
   describe '#min_workers_spawned?' do
+    let(:pool)          { ResqueRing::Pool.new(options) }
+
     before  { pool.stubs(:min).returns(1) }
     subject { pool.min_workers_spawned? }
 
@@ -299,6 +312,8 @@ describe ResqueRing::Pool do
   end
 
   describe '#room_for_more?' do
+    let(:pool)          { ResqueRing::Pool.new(options) }
+
     subject { pool.room_for_more? }
 
     context 'when local workers less than max' do
@@ -340,6 +355,8 @@ describe ResqueRing::Pool do
   end
 
   describe '#spawn!' do
+    let(:pool)          { ResqueRing::Pool.new(options) }
+
     before do
       @worker = ResqueRing::Worker.new(pool: pool)
 
@@ -364,20 +381,22 @@ describe ResqueRing::Pool do
   end
 
   context 'with no provided configuration' do
+    let(:pool)          { ResqueRing::Pool.new(options) }
+
     it 'defaults to a global_max of 0' do
-      subject.global_max.must_equal 0
+      pool.global_max.must_equal 0
     end
 
     it 'defaults to a min size of 1' do
-      subject.min.must_equal 1
+      pool.min.must_equal 1
     end
 
     it 'defaults to a max size of 5' do
-      subject.max.must_equal 5
+      pool.max.must_equal 5
     end
 
     it 'defaults to a first_at of 1' do
-      subject.first_at.must_equal 1
+      pool.first_at.must_equal 1
     end
   end
 
@@ -410,3 +429,12 @@ describe ResqueRing::Pool do
     end
   end
 end
+
+# TODO: Test despawn
+# it 'decreases the number of workers in @workers array' do
+#   pool.workers.size.must_equal(0)
+# end
+#
+# it 'removes the worker from @workers' do
+#   pool.workers.wont_include(worker)
+# end

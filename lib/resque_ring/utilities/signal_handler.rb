@@ -12,6 +12,7 @@ module ResqueRing
         args.each do |sig|
           signal = sig.to_s.upcase
           begin
+            puts "Registering handler for #{signal}"
             trap(signal) { send handler_opts[:with], signal }
           rescue ArgumentError
             warn "Signal (#{signal}) is not supported. Sorry, ol' chap."

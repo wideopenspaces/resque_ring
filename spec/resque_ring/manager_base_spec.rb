@@ -70,38 +70,23 @@ describe ResqueRing::Manager do
           end
         end
 
-        describe '#retire' do
+        describe '#downsize!' do
           let(:wkgrp)         { MiniTest::Mock.new }
           let(:wkgrp_two)     { MiniTest::Mock.new }
           let(:worker_groups) { { 'test' => wkgrp, 'me' => wkgrp_two } }
 
           before do
             mgr.instance_variable_set(:@worker_groups, worker_groups)
-            worker_groups.each_value { |wg| wg.expect(:retire!, true) }
+            worker_groups.each_value { |wg| wg.expect(:downsize!, true) }
           end
 
-          it 'tells each worker group to retire!' do
-            mgr.retire!
+          it 'tells each worker group to downsize!' do
+            mgr.downsize!
           end
         end
 
         after do
           worker_groups.each_value { |wg| wg.verify }
-        end
-      end
-
-      describe '#run' do
-        before do
-          mgr.expects(:manage!).returns(true)
-          mgr.expects(:sleep).with(mgr.delay)
-        end
-
-        it 'calls #manage' do
-          mgr.run!
-        end
-
-        it 'calls sleep with the appropriate delay' do
-          mgr.run!
         end
       end
     end

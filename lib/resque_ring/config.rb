@@ -4,7 +4,7 @@ module ResqueRing
   # Stores the configuration options for ResqueRing
   class Config
     extend Forwardable
-    def_delegators :@config, :delay, :workers, :redis
+    def_delegators :@config, :workers
 
     # @return [OpenStruct] the config as an OpenStruct
     attr_reader :config
@@ -39,6 +39,18 @@ module ResqueRing
     # @return [Boolean]
     def loaded?
       config && config.is_a?(OpenStruct)
+    end
+
+    def delay
+      @config.delay || 120
+    end
+
+    def redis
+      if @config.redis.is_a?(Hash) && @config.redis.keys.include?([:host, :port])
+        @config.redis
+      else
+        { host: 'localhost', port: 6379 }
+      end
     end
   end
 end

@@ -53,12 +53,12 @@ module ResqueRing
 
     # Instructs a {Pool} to manage its workers
     def manage!
+      Utilities::Logger.info "Items remaining in this WorkerGroup's queue: #{queues.size}"
       pool.manage!
     end
 
     # Instructs a {Pool} to shut down all of its workers
-    def retire!
-      Utilities::Logger.info "downsizing the worker group: #{name}"
+    def downsize!
       pool.downsize
     end
 

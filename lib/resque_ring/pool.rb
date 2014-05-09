@@ -44,8 +44,8 @@ module ResqueRing
 
     # Shut down all workers
     def downsize
-      Utilities::Logger.info 'terminating all workers'
       workers.each { |worker| despawn!(worker) }
+      # workers = []
     end
 
     # Removes a worker from the {Registry}
@@ -61,8 +61,11 @@ module ResqueRing
     # associated with {#worker_group}
     # @param worker [Worker] the worker to be added
     def register(worker)
-      @workers << worker
+      @workers << worker unless @workers.include?(worker)
+      Utilities::Logger.debug "Added #{worker.inspect} - Worker count (#{@workers.size})"
+
       options = worker_group.manager.delay ? { delay: worker_group.wait_time } : {}
+
       worker_group.registry.register(worker_group.name, worker.pid, options)
     end
 
@@ -140,7 +143,7 @@ module ResqueRing
     end
 
     def despawn!(worker = nil)
-      worker_to_fire = worker || @workers.pop
+      worker_to_fire = @workers.delete(worker) || @workers.pop
       worker_to_fire.stop!
       deregister(worker_to_fire)
     end
@@ -160,8 +163,7 @@ module ResqueRing
       worker = ResqueRing::Worker.new(worker_options)
       worker.start!
       register(worker) if worker.alive?
-
-      Utilities::Logger.info "spawned worker: #{worker.pid}"
+      Utilities::Logger.info "+++ spawned worker: #{worker.pid}"
     end
 
     def worker_options

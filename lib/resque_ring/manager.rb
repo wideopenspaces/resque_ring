@@ -24,6 +24,12 @@ module ResqueRing
 
     attr_reader :logger
 
+    # attr_reader :signals
+
+    attr_accessor :paused
+
+    # $signals = []
+
     # @param options [Hash] options for the Manager, usually
     #   including a key called config containing
     #   the location of the config file.
@@ -43,7 +49,7 @@ module ResqueRing
     # by calling {WorkerGroup#manage!}
     def manage!
       Utilities::Logger.debug 'Time to make the donuts'
-      each_worker_group { |wg| wg.manage! }
+      each_worker_group { |wg| wg.manage! } unless paused?
     end
 
     # Instructs each WorkerGroup to shut down its workers
@@ -52,15 +58,28 @@ module ResqueRing
     # Note this is a graceful exit and may take
     # some time to shut down, as it waits
     # for workers to finish their current task.
-    def retire!
-      each_worker_group { |wg| wg.retire! }
+    def downsize!
+      each_worker_group { |wg| wg.downsize! }
+    end
+
+    def pause!
+      @paused = true
+    end
+
+    def continue!
+      @paused = false
     end
 
     # Instructs WorkerGroups to manage & review workers
     # and then waits a configurable amount of time
     def run!
-      manage!
-      sleep delay
+      manage! unless paused?
+    end
+
+    # Have we been paused?
+    # @return [Boolean] current pause state
+    def paused?
+      @paused == true
     end
 
     private
@@ -86,17 +105,6 @@ module ResqueRing
       end
     end
 
-    # Loads redis with the proper options for redis
-    # @param redis_options [Hash] a hash containing the host
-    #   and port of the redis server
-    # @return [Redis] a redis instance
-    def load_redis(redis_options)
-      unless redis_options.is_a?(Hash) && redis_options.keys.include?([:host, :port])
-        redis_options = { host: 'localhost', port: 6379 }
-      end
-      Redis.new(redis_options)
-    end
-
     def prepare_logger(logfile = nil)
       @logger = Utilities::Logger.logfile(logfile)
     end
@@ -115,11 +123,15 @@ module ResqueRing
     # Sets the time the script waits before calling #run! again
     # @param delay [Integer] time to wait, in seconds
     def set_delay(delay)
-      @delay = delay || 120
+      @delay = delay
     end
 
+    # Loads redis with the proper options for redis
+    # @param redis_options [Hash] a hash containing the host
+    #   and port of the redis server
+    # @return [Redis] a redis instance
     def set_redis(redis_options)
-      @redis = load_redis(redis_options)
+      @redis = Redis.new(redis_options)
     end
 
     # Instantiates and collects new WorkerGroups based on config
