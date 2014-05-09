@@ -4,7 +4,7 @@ module ResqueRing
   # A managed worker process
   class Worker
     extend Forwardable
-    def_delegators :process, :pid, :alive?, :exited?
+    def_delegators :@process, :pid, :alive?, :exited?
 
     # @return [Pool] {Pool} that owns this Worker
     attr_reader :pool

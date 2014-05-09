@@ -45,7 +45,6 @@ module ResqueRing
     # Shut down all workers
     def downsize
       workers.each { |worker| despawn!(worker) }
-      # workers = []
     end
 
     # Removes a worker from the {Registry}
@@ -54,6 +53,7 @@ module ResqueRing
     def deregister(worker)
       Utilities::Logger.info "removing worker #{worker.pid} from registry..."
       worker_group.registry.deregister(worker_group.name, worker.pid)
+      @workers.delete(worker)
     end
 
     # Adds a worker to the list of {#workers} and
@@ -143,9 +143,11 @@ module ResqueRing
     end
 
     def despawn!(worker = nil)
-      worker_to_fire = @workers.delete(worker) || @workers.pop
-      worker_to_fire.stop!
-      deregister(worker_to_fire)
+      if worker
+        Utilities::Logger.debug "Despawned a worker. #{@workers.size - 1 } are left"
+        worker.stop!
+        deregister(worker)
+      end
     end
 
     def spawn_if_necessary

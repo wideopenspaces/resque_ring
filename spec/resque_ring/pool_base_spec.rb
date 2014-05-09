@@ -380,6 +380,22 @@ describe ResqueRing::Pool do
     end
   end
 
+  # describe '#despawn!' do
+  #   let(:pool)          { ResqueRing::Pool.new(options) }
+  #
+  #   before do
+  #     @worker = ResqueRing::Worker.new(pool: pool)
+  #     pool.send(:despawn!, @worker)
+  #   end
+  #
+  #   it 'removes the worker from the @workers array' do
+  #     pool.workers.must_not_include(@worker)
+  #   end
+  #
+  #   it 'tells the worker to stop'
+  #   it 'calls deregister with the worker as argument'
+  # end
+
   context 'with no provided configuration' do
     let(:pool)          { ResqueRing::Pool.new(options) }
 

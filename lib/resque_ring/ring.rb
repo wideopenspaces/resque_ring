@@ -1,5 +1,3 @@
-# require 'resque_ring/process/signals'
-# require 'resque_ring/process/workflow'
 require 'resque_ring/utilities/signal_handler'
 
 module ResqueRing
@@ -32,42 +30,50 @@ module ResqueRing
     end
 
     def run
-      hire_manager(options)
-      while @manager do
-        @manager.run! if @manager
-        while_waiting(@manager.delay) { handle_signals }
-      end
+      hire_manager(options) unless @manager
+
+      @manager.run!
+      productive_sleep(@manager.delay) { handle_signals }
+
+      run
     end
 
-    def handle_signals(&block)
-      while sig = $signals.shift
-        Utilities::Logger.debug "Got signal: #{sig}"
-        self.send(SIG_ACTS[sig]) if SIG_ACTS[sig]
-      end
-    end
+    # SUPPORTING CAST
 
-    def hire_manager(options)
-      @options ||= options
-      raise StandardError unless defined?(@options)
-
-      @manager = ResqueRing::Manager.new(@options)
-    end
-
-    def fire_manager
-      @manager.downsize!
-      @manager = nil
-    end
-
-    # Fires all workers and starts all over again
-    # with a new manager. This reloads the configuration
-    # file.
-    def reload!(signal = 'reload')
-      fire_manager and run
+    # Allows [Manager] to run and respawn
+    def continue!(signal = 'continue signal')
+      @manager.continue!
     end
 
     # Fires all workers but leaves the main loop running.
     def downsize!(signal = 'downsize')
       @manager.downsize!
+    end
+
+    # Instructs the manager to downsize and then gets rid of him
+    # @return [Nil]
+    def fire_manager
+      @manager.downsize!
+      @manager = nil
+    end
+
+    # Monitors the signal queue for new events and
+    #   runs the appropriate method when a new event is
+    #   detected
+    def handle_signals
+      while sig = $signals.shift
+        Utilities::Logger.debug "Got signal: #{sig}"
+        self.send(SIG_ACTS[sig]) if SIG_ACTS.keys?(sig)
+      end
+    end
+
+    # Creates a new instance of [Manager].
+    # @return [ResqueRing::Manager]
+    def hire_manager(options)
+      @options ||= options
+      raise StandardError unless defined?(@options)
+
+      @manager = ResqueRing::Manager.new(@options)
     end
 
     # Fires current workers and prevents [Manager]
@@ -77,9 +83,11 @@ module ResqueRing
       @manager.downsize!
     end
 
-    # Allows [Manager] to run and respawn
-    def continue!(signal = 'continue signal')
-      @manager.continue!
+    # Fires all workers and starts all over again
+    # with a new manager. This reloads the configuration
+    # file.
+    def reload!(signal = 'reload')
+      fire_manager
     end
 
     # Fires all workers and shuts down.
@@ -87,7 +95,10 @@ module ResqueRing
       fire_manager; exit
     end
 
-    def while_waiting(delay)
+    # A more productive, if imprecise, sleep.
+    # @param [Number] delay the amount of time in seconds to elapse
+    # @yield something to do while lucid dreaming...
+    def productive_sleep(delay)
       0.upto(delay) { yield; sleep 1 }
     end
 
