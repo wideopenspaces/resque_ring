@@ -1,10 +1,13 @@
 require 'yaml'
+require 'core/ext/array'
 
 module ResqueRing
   # Stores the configuration options for ResqueRing
   class Config
     extend Forwardable
     def_delegators :@config, :workers
+
+    REDIS_KEYS = [:host, :port]
 
     # @return [OpenStruct] the config as an OpenStruct
     attr_reader :config
@@ -29,28 +32,35 @@ module ResqueRing
       @config = OpenStruct.new(load_yml)
     end
 
-    # Loads config file into a symbolized hash
-    # @return [Hash] the config file as a hash
-    def load_yml
-      Yambol.load_file(config_file)
-    end
-
     # Has the configuration been loaded?
     # @return [Boolean]
     def loaded?
       config && config.is_a?(OpenStruct)
     end
 
+    # Fetches delay between manager runs from config file
+    # @return [Number] either the specified delay or 120 (the default)
     def delay
       @config.delay || 120
     end
 
+    # Fetches redis options from the config file.
+    # Returns default redis values if not set
+    # @return [Hash] including keys for :host & :port
     def redis
-      if @config.redis.is_a?(Hash) && @config.redis.keys.include?([:host, :port])
+      if @config.redis.is_a?(Hash) && @config.redis.keys?(:host, :port)
         @config.redis
       else
         { host: 'localhost', port: 6379 }
       end
+    end
+
+    private
+
+    # Loads config file into a symbolized hash
+    # @return [Hash] the config file as a hash
+    def load_yml
+      Yambol.load_file(config_file)
     end
   end
 end

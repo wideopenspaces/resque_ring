@@ -6,6 +6,8 @@ require 'resque/server'
 require 'yambol'
 require 'madhattr/hattr_accessor'
 
+require 'core/ext'
+
 require 'resque_ring/runner'
 require 'resque_ring/worker'
 require 'resque_ring/pool'
