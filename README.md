@@ -135,7 +135,7 @@ Quit all workers cleanly, reload config, and start fresh.
 $ kill -HUP <resque_ring_pid>
 ```
 
-#### Pause 
+#### Pause
 
 Quit all workers and prevent them from respawning.
 
@@ -163,7 +163,7 @@ Global settings are at the root of the yml file. All global
 settings are optional, but ResqueRing will use its own
 defaults if not set.
 
-```ruby
+```yml
 delay: 60 # seconds to wait before checking again
 ```
 
@@ -173,7 +173,7 @@ Redis settings, if included, should include the host & port
 of your Redis server. If not included, ResqueRing will use
 the default Redis host and port: `localhost:6379`.
 
-```ruby
+```yml
 redis:
   host: localhost
   port: 6379
@@ -208,7 +208,7 @@ Each group of workers has a number of options:
 > **Note**: ResqueRing resets all existing environment variables
 > prior to setting the environment variables specified here.
 
-```ruby
+```yml
 spawner:
   command: bundle exec rake resque:work
   dir: /this/is/my/work/dir
@@ -220,7 +220,7 @@ spawner:
 
 A list of queues this worker group is expected to watch.
 
-```ruby
+```yml
 queues:
   - queue_the_first
   - queue_tee_pie
@@ -252,7 +252,7 @@ Pool options configure the management of a pool of workers.
 > and down as needed, rather than maintain an always-active pool of
 > workers.
 
-```ruby
+```yml
 pool:
   min: 1         # How many to start initially, 0 means no workers until queue; defaults to 1
   max: 5         # The most we'll ever start; defaults to 5
@@ -264,7 +264,7 @@ pool:
 
 A complete configuration file looks something like this:
 
-```ruby
+```yml
 delay: 60 # seconds to wait before checking again
 redis:
   host: localhost
@@ -296,3 +296,20 @@ Planned features
 
 - [ ] Ability to kill & respawn workers based on metrics above
 - [ ] Wildcard queues?
+
+Contributing
+-------------
+
+Fixing a bug? Adding an awesome new feature? Your pull requests are welcome!
+* Please create a feature branch each separate change
+* Write tests for your changes! All specs and code quality checks
+  must pass on [Travis CI](https://travis-ci.org/wideopenspaces/resque_ring).
+* Update the documentation.
+* Update the [README](https://github.com/wideopenspaces/wideopenspaces/blob/master/README.md).
+* Please **do not change** the version number.
+
+License
+-------
+Released under the MIT License.  See the [LICENSE][] file for further details.
+
+[license]: LICENSE.md
