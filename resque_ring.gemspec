@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'mocha', '0.13.3'
   s.add_development_dependency 'mock_redis'
   s.add_development_dependency 'simplecov', '~> 0.8.1'
+  s.add_development_dependency 'yard'
 
   s.add_dependency 'resque', ['>= 1.15.0', '< 2.0']
   s.add_dependency 'madhattr', '0.6.0'
