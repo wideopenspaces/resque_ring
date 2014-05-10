@@ -9,13 +9,6 @@ require_relative '../lib/bin/resque_filler'
 
 Resque.redis = 'localhost:6379'
 
-# # A mild-mannered modification to Resque
-# module Resque
-#   def self.enqueue(*args)
-#     super(*args)
-#   end
-# end
-
 # a CLI application to ease development
 # enables:
 # * emptying redis
