@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module ResqueRing
   module Utilities
     # Methods for simply intercepting OS signals and responding to

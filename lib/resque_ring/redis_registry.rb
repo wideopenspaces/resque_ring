@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module ResqueRing
   # Methods for storing and retrieving ResqueRing information via Redis
   class RedisRegistry

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Core
   module Ext
     # An extension to [Hash] to easily check the presence of multiple keys

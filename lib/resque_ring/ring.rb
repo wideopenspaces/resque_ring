@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'resque_ring/utilities/signal_handler'
 require 'benchmark'
 

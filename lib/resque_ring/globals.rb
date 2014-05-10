@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module ResqueRing
   # A container for a few frequently accessed 'globals'
   module Globals

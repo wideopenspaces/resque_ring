@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Core
   module Ext
     # An extension to Array to check for presence of multiple values

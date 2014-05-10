@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module ResqueRing
   # Methods common to any Registry implementation.
   # Currently only in use by {RedisRegistry}

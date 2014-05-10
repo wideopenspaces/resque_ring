@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module ResqueRing
   # A managed group of Resque workers
   class Pool

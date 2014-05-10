@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module ResqueRing
   # a local representation of a Resque Queue
   class Queue

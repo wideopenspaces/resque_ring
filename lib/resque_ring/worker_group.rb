@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module ResqueRing
   # A managed group of workers and methods for spawning
   #   and tracking their status

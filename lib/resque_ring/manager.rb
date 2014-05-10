@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module ResqueRing
   # Manages the operations of ResqueRing by loading configuration
   # and telling appropriate worker groups when to manage themselves.

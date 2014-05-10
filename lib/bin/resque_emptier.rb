@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # Utility class ResqueRing can be configured to use for
 # processing a queue full of nonsense
 class ResqueEmptier
