@@ -1,6 +1,8 @@
 module ResqueRing
   # A managed group of Resque workers
   class Pool
+    include Globals
+
     extend HattrAccessor
     extend Forwardable
     def_delegator :worker_group, :manager
@@ -53,8 +55,8 @@ module ResqueRing
     # associated with {#worker_group}
     # @param worker [Worker] the worker to be removed
     def deregister(worker)
-      RR.logger.info "removing worker #{worker.pid} from registry..."
-      worker_group.registry.deregister(worker_group.name, worker.pid)
+      logger.info "removing worker #{worker.pid} from registry..."
+      registry.deregister(worker_group.name, worker.pid)
       @workers.delete(worker)
     end
 
@@ -65,33 +67,33 @@ module ResqueRing
     def register(worker)
       @workers << worker unless @workers.include?(worker)
 
-      options = manager.delay ? { delay: worker_group.wait_time } : {}
-      worker_group.registry.register(worker_group.name, worker.pid, options)
+      options = config.delay ? { delay: worker_group.wait_time } : {}
+      registry.register(worker_group.name, worker.pid, options)
     end
 
     # @return [Integer] number of current workers for this Pool
     #   fetched from the {Registry}
     def current_workers
-      worker_group.registry.current(worker_group.name, :worker_count).to_i
+      registry.current(worker_group.name, :worker_count).to_i
     end
 
     # @return [Array] pids of the current worker processes as
     #   fetched from the {Registry}
     def worker_processes
-      worker_group.registry.list(worker_group.name, :worker_list) || []
+      registry.list(worker_group.name, :worker_list) || []
     end
 
     # @return [String] a string containing the time the last
     #   {Worker} was spawned
     def last_spawned
-      worker_group.registry.current(worker_group.name, :last_spawned)
+      registry.current(worker_group.name, :last_spawned)
     end
 
     # @return [Boolean] true if a key called
     #   'spawn_blocked' returns a value of 1
     #   (meaning it hasn't expired in Redis)
     def spawn_blocked?
-      worker_group.registry.current(worker_group.name, :spawn_blocked) == '1'
+      registry.current(worker_group.name, :spawn_blocked) == '1'
     end
 
     # @return [Boolean] true if {#spawn_blocked?}
@@ -156,7 +158,7 @@ module ResqueRing
     end
 
     def spawn_first
-      RR.logger.info 'spawning our initial worker(s)!'
+      logger.info 'spawning our initial worker(s)!'
       spawn!
     end
 

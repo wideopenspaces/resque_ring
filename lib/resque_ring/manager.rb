@@ -1,16 +1,10 @@
-require 'resque_ring/utilities/logger'
-require 'resque_ring/config'
-
 module ResqueRing
   # Manages the operations of ResqueRing by loading configuration
   # and telling appropriate worker groups when to manage themselves.
   class Manager
+    include Globals
     extend Forwardable
-    def_delegator :@config, :delay
-
-    # @return [Config] the config object created from the
-    #   specified config file
-    attr_reader :config
+    def_delegator :config, :delay
 
     # @return [Hash{Symbol => String}] the options
     #   used to create the Manager
@@ -19,10 +13,6 @@ module ResqueRing
     # @return [Hash{String => WorkerGroup}] list of {WorkerGroup}s
     #   the manager manages, organized by name
     attr_reader :worker_groups
-
-    # @return [Registry] the backend store used for keeping
-    #   track of workers
-    attr_reader :registry
 
     # @return [Boolean] true or false depending on pause state
     attr_accessor :paused
@@ -45,7 +35,7 @@ module ResqueRing
     # Instructs each WorkerGroup to manage its own workers
     # by calling {WorkerGroup#manage!}
     def manage!
-      RR.logger.debug 'Time to make the donuts'
+      logger.debug 'Time to make the donuts'
       each_worker_group { |wg| wg.manage! } unless paused?
     end
 
@@ -89,18 +79,18 @@ module ResqueRing
     # @param config [String] a string representing the location of
     #   the config file
     def load_config(config_file)
-      @config = ResqueRing::Config.new(config_file)
+      Globals.config = ResqueRing::Config.new(config_file)
       prepare_worker_groups(config.workers) if config.loaded?
     end
 
     def prepare_logger(logfile = nil)
-      RR.logger = Utilities::Logger.logfile(logfile)
+      Globals.logger = Utilities::Logger.logfile(logfile)
     end
 
     # Creates a new registry
     # @return [RedisRegistry] a RedisRegistry instance
     def prepare_registry
-      @registry = RedisRegistry.new(redis)
+      Globals.registry = RedisRegistry.new(redis)
     end
 
     # Sets the Redis instance for Resque

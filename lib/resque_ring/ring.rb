@@ -4,6 +4,8 @@ require 'benchmark'
 module ResqueRing
   # Container for an entire manager/worker group/pool/worker organization
   class Ring
+    include Globals
+
     extend ResqueRing::Utilities::SignalHandler
     # include ResqueRing::Process::Signals
     # include ResqueRing::Process::Workflow
@@ -63,7 +65,7 @@ module ResqueRing
     #   detected
     def handle_signals
       while (sig = ResqueRing.signals.shift)
-        RR.logger.debug "Got signal: #{sig}"
+        logger.debug "Got signal: #{sig}"
         send(SIG_ACTS[sig]) if SIG_ACTS.keys?(sig)
       end
     end

@@ -2,6 +2,8 @@ module ResqueRing
   # A managed group of workers and methods for spawning
   #   and tracking their status
   class WorkerGroup
+    include Globals
+
     extend HattrAccessor
 
     # @return [String] name of the WorkerGroup
@@ -54,7 +56,7 @@ module ResqueRing
 
     # Instructs a {Pool} to manage its workers
     def manage!
-      RR.logger.info(
+      logger.info(
         "Items remaining in this WorkerGroup's queue: #{queues.size}")
       pool.manage!
     end
@@ -67,12 +69,6 @@ module ResqueRing
     # @return [Pool] the pool of workers for this WorkerGroup
     def pool
       @pool ||= ResqueRing::Pool.new(@options[:pool].merge(worker_group: self))
-    end
-
-    # @return [Registry] the {Registry} associated with this
-    #   WorkerGroup's {Manager}
-    def registry
-      manager.registry
     end
 
     # @return [Array] an array of strings for building the

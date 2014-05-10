@@ -3,6 +3,7 @@ require 'childprocess'
 module ResqueRing
   # A managed worker process
   class Worker
+    include Globals
     extend Forwardable
     def_delegators :@process, :pid, :alive?, :exited?
 
@@ -42,7 +43,7 @@ module ResqueRing
 
     # Instructs a worker to die
     def stop!
-      RR.logger.info "stopping worker #{pid}"
+      logger.info "stopping worker #{pid}"
       process.stop(20) # Give worker some time to stop.
       # TODO: Move stop timeout to the config?
     end
