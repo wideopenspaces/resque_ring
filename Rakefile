@@ -9,9 +9,9 @@ end
 
 desc 'Run RuboCop on the lib directory'
 Rubocop::RakeTask.new(:rubocop) do |task|
-  task.patterns = ['lib/**/*.rb']
-  # only show the files with failures
-  task.formatters = ['progress']
-  # don't abort rake on failure
-  task.fail_on_error = false
+  task.formatters    = ['progress']
+  task.fail_on_error = true
 end
+
+task(:default).clear
+task default: [:rubocop, :test]
