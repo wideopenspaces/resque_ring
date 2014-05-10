@@ -1,5 +1,6 @@
 module Core
   module Ext
+    # An extension to [Hash] to easily check the presence of multiple keys
     module Hash
       # Does this hash contain all the given keys?
       # @param [Array] expected_keys these are the keys you're looking for

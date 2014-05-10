@@ -5,14 +5,16 @@ module ResqueRing
   # Manages the operations of ResqueRing by loading configuration
   # and telling appropriate worker groups when to manage themselves.
   class Manager
-    attr_reader :cfg
+    extend Forwardable
+    def_delegator :@config, :delay
+
+    # @return [Config] the config object created from the
+    #   specified config file
+    attr_reader :config
 
     # @return [Hash{Symbol => String}] the options
     #   used to create the Manager
     attr_reader :options
-
-    # @return [Integer] the time between script runs
-    attr_reader :delay
 
     # @return [Hash{String => WorkerGroup}] list of {WorkerGroup}s
     #   the manager manages, organized by name
@@ -22,13 +24,8 @@ module ResqueRing
     #   track of workers
     attr_reader :registry
 
-    attr_reader :logger
-
-    # attr_reader :signals
-
+    # @return [Boolean] true or false depending on pause state
     attr_accessor :paused
-
-    # $signals = []
 
     # @param options [Hash] options for the Manager, usually
     #   including a key called config containing
@@ -48,7 +45,7 @@ module ResqueRing
     # Instructs each WorkerGroup to manage its own workers
     # by calling {WorkerGroup#manage!}
     def manage!
-      Utilities::Logger.debug 'Time to make the donuts'
+      RR.logger.debug 'Time to make the donuts'
       each_worker_group { |wg| wg.manage! } unless paused?
     end
 
@@ -78,9 +75,7 @@ module ResqueRing
 
     # Have we been paused?
     # @return [Boolean] current pause state
-    def paused?
-      @paused == true
-    end
+    alias_method :paused?, :paused
 
     private
 
@@ -93,53 +88,37 @@ module ResqueRing
     # Loads the config & sets global options
     # @param config [String] a string representing the location of
     #   the config file
-    def load_config(config)
-      # @config_file ||= Yambol.load_file(config) if config
-      @cfg = ResqueRing::Config.new(config)
-      if cfg.loaded?
-        set_delay(cfg.delay)
-        set_worker_groups(cfg.workers)
-        set_redis(cfg.redis)
-      else
-        set_redis({}) # use default Redis config
-      end
+    def load_config(config_file)
+      @config = ResqueRing::Config.new(config_file)
+      prepare_worker_groups(config.workers) if config.loaded?
     end
 
     def prepare_logger(logfile = nil)
-      @logger = Utilities::Logger.logfile(logfile)
+      RR.logger = Utilities::Logger.logfile(logfile)
     end
 
     # Creates a new registry
     # @return [RedisRegistry] a RedisRegistry instance
     def prepare_registry
-      @registry = RedisRegistry.new(@redis)
+      @registry = RedisRegistry.new(redis)
     end
 
     # Sets the Redis instance for Resque
     def prepare_resque
-      Resque.redis = @redis
-    end
-
-    # Sets the time the script waits before calling #run! again
-    # @param delay [Integer] time to wait, in seconds
-    def set_delay(delay)
-      @delay = delay
-    end
-
-    # Loads redis with the proper options for redis
-    # @param redis_options [Hash] a hash containing the host
-    #   and port of the redis server
-    # @return [Redis] a redis instance
-    def set_redis(redis_options)
-      @redis = Redis.new(redis_options)
+      Resque.redis = redis
     end
 
     # Instantiates and collects new WorkerGroups based on config
     # @param groups [Hash] a hash with names and options
-    def set_worker_groups(groups)
+    def prepare_worker_groups(groups)
       groups.each do |name, options|
-        @worker_groups[name] = WorkerGroup.new(name, options.merge(manager: self))
+        @worker_groups[name] = WorkerGroup.new(
+        name, options.merge(manager: self))
       end
+    end
+
+    def redis
+      @redis ||= Redis.new(config.redis)
     end
   end
 end

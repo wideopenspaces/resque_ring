@@ -32,9 +32,16 @@ describe ResqueRing::WorkerGroup do
   end
 
   context 'with a provided configuration' do
-    let(:options) { Yambol.load_file('./spec/support/config_with_delay.yml')[:workers][:indexing] }
-    let(:wg)      { ResqueRing::WorkerGroup.new('indexing', options.merge(manager: mgr)) }
-    subject       { wg }
+    let(:config_file) { './spec/support/config_with_delay.yml' }
+
+    let(:options) do
+      Yambol.load_file(config_file)[:workers][:indexing]
+    end
+    let(:wg) do
+      ResqueRing::WorkerGroup.new('indexing', options.merge(manager: mgr))
+    end
+
+    subject { wg }
 
     it 'knows its spawn command' do
       subject.spawn_command.must_equal options[:spawner][:command]
@@ -89,10 +96,10 @@ describe ResqueRing::WorkerGroup do
 
     describe '#downsize!' do
       it 'notifies what it is doing' do
-        ResqueRing::Utilities::Logger.expects(:info).with("downsizing the worker group: #{wg.name}")
-        ResqueRing::Utilities::Logger.expects(:info).with('terminating all workers')
+        Logger.expects(:info).with("downsizing the worker group: #{wg.name}")
+        Logger.expects(:info).with('terminating all workers')
         wg.downsize!
-        ResqueRing::Utilities::Logger.unstub(:info)
+        Logger.unstub(:info)
       end
 
       it 'tells the pool to downsize' do
@@ -207,7 +214,9 @@ describe ResqueRing::WorkerGroup do
     describe '#spawner' do
       context 'if command includes {{queues}}' do
         it 'returns spawn command with queues inserted' do
-          subject.spawner.must_equal options[:spawner][:command].each { |c| c.gsub!('{{queues}}', "QUEUES=#{subject.queues.names.join(',')}") }
+          subject.spawner.must_equal options[:spawner][:command].each { |c|
+            c.gsub!('{{queues}}', "QUEUES=#{subject.queues.names.join(',')}")
+          }
         end
       end
     end

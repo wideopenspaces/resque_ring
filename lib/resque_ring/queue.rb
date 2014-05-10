@@ -6,7 +6,7 @@ module ResqueRing
 
     # @!method to_s
     # @return [String] the name of the queue
-    alias :to_s :name
+    alias_method :to_s, :name
 
     # @return [Resque] an instance of {Resque}
     attr_reader :store

@@ -14,13 +14,14 @@ module ResqueRing
     map '-r' => :start
 
     desc 'start', 'start a resque_ring'
-    method_option :config, required: true,
-      type:       :string,
-      aliases:    '-c'
+    method_option :config,
+                  required: true,
+                  type:     :string,
+                  aliases:  '-c'
     method_option :logfile,
-      type:       :string,
-      aliases:    '-l',
-      default:    './resque_ring.log'
+                  type:       :string,
+                  aliases:    '-l',
+                  default:    './resque_ring.log'
     def start
       ResqueRing::Ring.new(options)
     end
@@ -33,10 +34,13 @@ module ResqueRing
     # TODO: Add generator for starter config file
     # desc 'install', 'install a sample config file'
     # def install
-    #   location    = ask_with_default('Where do you want to put the config file?', 'resque_ring.yml')
-    #   redis_host  = ask_with_default('On what host is redis running?', 'localhost')
+    #   location    = ask_with_default(
+    #     'Where do you want to put the config file?', 'resque_ring.yml')
+    #   redis_host  = ask_with_default(
+    #     'On what host is redis running?', 'localhost')
     #   redis_port  = ask_with_default('On what port is redis running?', 6379)
-    #   delay       = ask_with_default('How many seconds should we wait between runs?', 60)
+    #   delay       = ask_with_default(
+    #     'How many seconds should we wait between runs?', 60)
     # end
 
     ## HELPER METHODS

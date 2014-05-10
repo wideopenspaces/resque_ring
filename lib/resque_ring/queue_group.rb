@@ -1,6 +1,6 @@
 module ResqueRing
-  # A group of Resque Queues and associated methods for interacting with the queues
-  # as a single group.
+  # A group of Resque Queues and associated methods
+  # for interacting with the queues as a single group.
   class QueueGroup
     include Enumerable
     attr_reader :queues

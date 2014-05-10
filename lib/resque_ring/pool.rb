@@ -2,6 +2,8 @@ module ResqueRing
   # A managed group of Resque workers
   class Pool
     extend HattrAccessor
+    extend Forwardable
+    def_delegator :worker_group, :manager
 
     # @return [WorkerGroup] {WorkerGroup} for this Pool
     attr_reader :worker_group
@@ -51,7 +53,7 @@ module ResqueRing
     # associated with {#worker_group}
     # @param worker [Worker] the worker to be removed
     def deregister(worker)
-      Utilities::Logger.info "removing worker #{worker.pid} from registry..."
+      RR.logger.info "removing worker #{worker.pid} from registry..."
       worker_group.registry.deregister(worker_group.name, worker.pid)
       @workers.delete(worker)
     end
@@ -62,10 +64,8 @@ module ResqueRing
     # @param worker [Worker] the worker to be added
     def register(worker)
       @workers << worker unless @workers.include?(worker)
-      Utilities::Logger.debug "Added #{worker.inspect} - Worker count (#{@workers.size})"
 
-      options = worker_group.manager.delay ? { delay: worker_group.wait_time } : {}
-
+      options = manager.delay ? { delay: worker_group.wait_time } : {}
       worker_group.registry.register(worker_group.name, worker.pid, options)
     end
 
@@ -113,7 +113,8 @@ module ResqueRing
     end
 
     def spawn_first_worker?
-      return true if first_at && workers.size.zero? && worker_group.wants_to_hire_first_worker?
+      return true if first_at && workers.size.zero? &&
+        worker_group.wants_to_hire_first_worker?
       !min_workers_spawned?
     end
 
@@ -144,20 +145,18 @@ module ResqueRing
 
     def despawn!(worker = nil)
       if worker
-        Utilities::Logger.debug "Despawned a worker. #{@workers.size - 1 } are left"
         worker.stop!
         deregister(worker)
       end
     end
 
     def spawn_if_necessary
-      Utilities::Logger.info 'checking to see if we need to spawn workers'
-      spawn_first and return if spawn_first_worker?
+      spawn_first && return if spawn_first_worker?
       spawn! if worker_group.wants_to_add_workers? && room_for_more?
     end
 
     def spawn_first
-      Utilities::Logger.info 'spawning our initial worker(s)!'
+      RR.logger.info 'spawning our initial worker(s)!'
       spawn!
     end
 
@@ -165,11 +164,10 @@ module ResqueRing
       worker = ResqueRing::Worker.new(worker_options)
       worker.start!
       register(worker) if worker.alive?
-      Utilities::Logger.info "+++ spawned worker: #{worker.pid}"
     end
 
     def worker_options
-      worker_group.worker_options.merge({ pool: self })
+      worker_group.worker_options.merge(pool: self)
     end
   end
 end

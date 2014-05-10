@@ -8,14 +8,15 @@ Gem::Specification.new do |s|
   s.version       = ResqueRing::VERSION
   s.authors       = ['Mila Jacob Stetser']
   s.email         = ['jake@wideopenspac.es']
-  s.summary       = %q{Autoscaling pool manager for resque workers.}
-  s.description   = s.summary + %q{ Enables dynamic worker pool management based on queue size, worker stats and other important variables. }
+  s.summary       = %q(Autoscaling pool manager for resque workers. )
+  s.description   = s.summary + %q(Enables dynamic worker pool management
+    based on queue size, worker stats and other important variables.)
   s.homepage      = 'https://github.com/wideopenspaces/resque_ring'
   s.license       = 'MIT'
 
-  s.files         = `git ls-files`.split($/)
-  s.executables   = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  s.test_files    = s.files.grep(%r{^(test|spec|features)/})
+  s.files         = `git ls-files`.split($RS)
+  s.executables   = s.files.grep(/^bin\//) { |f| File.basename(f) }
+  s.test_files    = s.files.grep(/^(test|spec|features)\//)
   s.require_paths = ['lib']
 
   s.add_development_dependency 'bundler', '~> 1.3'

@@ -1,5 +1,6 @@
 module ResqueRing
-  # A managed group of workers and methods for spawning and tracking their status
+  # A managed group of workers and methods for spawning
+  #   and tracking their status
   class WorkerGroup
     extend HattrAccessor
 
@@ -53,7 +54,8 @@ module ResqueRing
 
     # Instructs a {Pool} to manage its workers
     def manage!
-      Utilities::Logger.info "Items remaining in this WorkerGroup's queue: #{queues.size}"
+      RR.logger.info(
+        "Items remaining in this WorkerGroup's queue: #{queues.size}")
       pool.manage!
     end
 
@@ -86,7 +88,9 @@ module ResqueRing
     # @return [Array] an array of strings used by
     #   the {Pool} when spawning a {Worker}
     def spawner
-      spawn_command.map { |c| c.gsub('{{queues}}', "QUEUES=#{queues.names.join(',')}") }
+      spawn_command.map do |c|
+        c.gsub('{{queues}}', "QUEUES=#{queues.names.join(',')}")
+      end
     end
 
     # @return [Boolean] true if total items in all queues

@@ -36,14 +36,14 @@ module ResqueRing
     # Fetches delay between manager runs from config file
     # @return [Number] either the specified delay or 120 (the default)
     def delay
-      @config.delay || 120
+      loaded? && @config.delay ? @config.delay : 120
     end
 
     # Fetches redis options from the config file.
     # Returns default redis values if not set
     # @return [Hash] including keys for :host & :port
     def redis
-      redis_set? ? @config.redis : REDIS_DEFAULT
+      loaded? && redis_set? ? @config.redis : REDIS_DEFAULT
     end
 
     private

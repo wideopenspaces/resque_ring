@@ -195,7 +195,7 @@ describe ResqueRing::Pool do
       pool.instance_variable_set(:@workers, [@worker])
       pool.expects(:despawn!).with(@worker)
 
-      ResqueRing::Utilities::Logger.expects(:info).with('terminating all workers')
+      Logger.expects(:info).with('terminating all workers')
     end
 
     it 'notifies that it is terminating workers' do
@@ -279,7 +279,6 @@ describe ResqueRing::Pool do
       end
     end
   end
-
 
   describe '#min_workers_spawned?' do
     let(:pool)          { ResqueRing::Pool.new(options) }
@@ -367,8 +366,8 @@ describe ResqueRing::Pool do
     end
 
     # sorry about this, but the actual validations are in the before block.
-    # TODO - refactor
-    it 'creates a new worker, checks to see if it is alive, and registers it' do
+    # TODO: refactor
+    it 'creates a new worker, checks to see if it is alive, & registers it' do
       pool.send(:spawn!)
     end
 

@@ -4,59 +4,45 @@ require 'thor'
 require 'resque'
 require_relative '../lib/resque_ring'
 require_relative '../lib/resque/plugins/resque_ring/managed_job'
-
-$redis = Redis.new
+require_relative '../lib/bin/resque_emptier'
+require_relative '../lib/bin/resque_filler'
 
 Resque.redis = 'localhost:6379'
 
-module Resque
-  def self.enqueue(*args)
-    super(*args)
-  end
-end
+# # A mild-mannered modification to Resque
+# module Resque
+#   def self.enqueue(*args)
+#     super(*args)
+#   end
+# end
 
-class ResqueEmptier
-  extend Resque::Plugins::ResqueRing::ManagedJob
-
-  @queue         = :queue_the_first
-  @worker_group  = 'indexing'
-
-  def self.perform(item)
-    puts "#{Process.ppid} got #{item}"
-    sleep(rand(3))
-  end
-end
-
-class ResqueFiller
-  def self.fill(number_entries = 100)
-    number_entries.times do |i|
-      Resque::enqueue(ResqueEmptier, i)
-    end
-  end
-end
-
+# a CLI application to ease development
+# enables:
+# * emptying redis
+# * filling the queue
+# * starting ResqueRing
 class RRTester < Thor
   include Thor::Actions
 
   desc 'fill', 'fill the queue'
   method_option :config,
-    required:   true,
-    type:       :string,
-    aliases:    '-c'
+                required:   true,
+                type:       :string,
+                aliases:    '-c'
   def fill
     trap('HUP') { start_server }
 
     empty_redis if empty_redis?
-    fill_queue if get_size
+    fill_queue if ask_size
 
     start_server if start_server?
   end
 
   desc 'empty', 'start a simple client'
   method_option :queue,
-    required:   true,
-    type:       :string,
-    aliases:    '-q'
+                required:   true,
+                type:       :string,
+                aliases:    '-q'
   def empty
     queue = options[:queue]
 
@@ -70,10 +56,10 @@ class RRTester < Thor
   end
 
   def empty_redis
-    $redis.flushdb
+    Resque.redis.flushdb
   end
-  
-  def get_size
+
+  def ask_size
     @size = ask('How many queue items would you like to add?')
   end
 
@@ -82,8 +68,8 @@ class RRTester < Thor
   end
 
   def start_server
-    say "Maximizing widget pipeline...", :yellow
-    say "Initiating imminent actualization...", :green
+    say 'Maximizing widget pipeline...', :yellow
+    say 'Initiating imminent actualization...', :green
     ResqueRing::Runner.start(['start'] + ARGV[1..-1])
   end
 

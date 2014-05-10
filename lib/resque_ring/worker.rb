@@ -42,7 +42,7 @@ module ResqueRing
 
     # Instructs a worker to die
     def stop!
-      Utilities::Logger.info "stopping worker #{pid}"
+      RR.logger.info "stopping worker #{pid}"
       process.stop(20) # Give worker some time to stop.
       # TODO: Move stop timeout to the config?
     end
@@ -53,22 +53,22 @@ module ResqueRing
       @process = @process_mgr.build(*options[:spawner])
       process.leader = true
 
-      set_working_dir(options[:cwd])
-      set_environment(options[:env])
+      working_dir(options[:cwd])
+      environment(options[:env])
     end
 
     def reset_env!
       ENV.keys.each { |key| process.environment[key] = nil }
     end
 
-    def set_environment(env)
+    def environment(env)
       return unless env && env.size > 0
 
       reset_env!
       env.each { |k, v| process.environment[k.upcase] = v } unless env.empty?
     end
 
-    def set_working_dir(cwd)
+    def working_dir(cwd)
       process.cwd = cwd if cwd
     end
   end

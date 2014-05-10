@@ -1,12 +1,13 @@
 require 'resque_ring/utilities/signal_handler'
+require 'benchmark'
 
 module ResqueRing
+  # Container for an entire manager/worker group/pool/worker organization
   class Ring
     extend ResqueRing::Utilities::SignalHandler
     # include ResqueRing::Process::Signals
     # include ResqueRing::Process::Workflow
 
-    $signals = []
     QUIT     = :retire!
     SIG_ACTS = {
       'INT'   => :retire!,
@@ -19,7 +20,7 @@ module ResqueRing
     }
 
     intercept :int, :term, :quit, :hup, :usr1, :usr2, :cont,
-      with: :catch_signal
+              with: :catch_signal
 
     attr_reader :options
 
@@ -41,12 +42,12 @@ module ResqueRing
     # SUPPORTING CAST
 
     # Allows [Manager] to run and respawn
-    def continue!(signal = 'continue signal')
+    def continue!(_signal)
       @manager.continue!
     end
 
     # Fires all workers but leaves the main loop running.
-    def downsize!(signal = 'downsize')
+    def downsize!(_signal)
       @manager.downsize!
     end
 
@@ -61,9 +62,9 @@ module ResqueRing
     #   runs the appropriate method when a new event is
     #   detected
     def handle_signals
-      while sig = $signals.shift
-        Utilities::Logger.debug "Got signal: #{sig}"
-        self.send(SIG_ACTS[sig]) if SIG_ACTS.keys?(sig)
+      while (sig = ResqueRing.signals.shift)
+        RR.logger.debug "Got signal: #{sig}"
+        send(SIG_ACTS[sig]) if SIG_ACTS.keys?(sig)
       end
     end
 
@@ -71,14 +72,14 @@ module ResqueRing
     # @return [ResqueRing::Manager]
     def hire_manager(options)
       @options ||= options
-      raise StandardError unless defined?(@options)
+      fail StandardError unless defined?(@options)
 
       @manager = ResqueRing::Manager.new(@options)
     end
 
     # Fires current workers and prevents [Manager]
     # from running
-    def pause!(signal = 'pause signal')
+    def pause!(_signal)
       @manager.pause!
       @manager.downsize!
     end
@@ -86,26 +87,32 @@ module ResqueRing
     # Fires all workers and starts all over again
     # with a new manager. This reloads the configuration
     # file.
-    def reload!(signal = 'reload')
+    def reload!(_signal)
       fire_manager
     end
 
     # Fires all workers and shuts down.
-    def retire!(signal = 'retire')
-      fire_manager; exit
+    def retire!(_signal)
+      fire_manager
+      exit
     end
 
     # A more productive, if imprecise, sleep.
+    # Attempts to adjust for time spent in the block.
+    #
     # @param [Number] delay the amount of time in seconds to elapse
     # @yield something to do while lucid dreaming...
     def productive_sleep(delay)
-      0.upto(delay) { yield; sleep 1 }
+      0.upto(delay) do
+        elapsed = Benchmark.realtime { yield }
+        sleep(1 - [elapsed, 1].min)
+      end
     end
 
     class << self
       def catch_signal(signal)
         puts "Caught signal #{signal}"
-        $signals << signal
+        ResqueRing.signals << signal
       end
     end
   end

@@ -5,7 +5,9 @@ module ResqueRing
     HOST = `hostname`.strip.freeze
 
     # @return [String] the local machine's hostname
-    def host; HOST; end
+    def host
+      HOST
+    end
 
     # Adds the host to the given value to namespace it
     # by server

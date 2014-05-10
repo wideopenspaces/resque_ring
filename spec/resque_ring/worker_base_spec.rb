@@ -13,9 +13,13 @@ describe ResqueRing::Worker do
       end
 
       context 'with a spawner given' do
-        let(:args)    { ['ruby', '-e', 'sleep'] }
-        let(:worker)  { ResqueRing::Worker.new(pool: pool, spawner: args, env: { rails_env: 'test' }) }
+        let(:args)    { %w(ruby -e sleep) }
         let(:process) { ChildProcess.new }
+
+        let(:worker)  do
+          ResqueRing::Worker.new(
+            pool: pool, spawner: args, env: { rails_env: 'test' })
+        end
 
         before do
           ChildProcess.expects(:build).with(*args).returns(process)

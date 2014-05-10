@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe Hash do
-  scales = 'Every good boy deserves fudge'
   let(:hash) { { every: 'good', boy: 'deserves', fudge: nil } }
 
   context '#keys?' do

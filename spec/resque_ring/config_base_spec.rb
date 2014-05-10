@@ -43,13 +43,13 @@ describe ResqueRing::Config do
       context '#redis' do
         context 'if redis key is in config file' do
           it 'matches the values present in file' do
-            config.redis.must_equal({ host: '127.0.0.1', port: 6379 })
+            config.redis.must_equal(host: '127.0.0.1', port: 6379)
           end
         end
 
         context 'if redis key is not set in config' do
           it 'uses redis defaults' do
-            min.redis.must_equal({ host: 'localhost', port: 6379 })
+            min.redis.must_equal(host: 'localhost', port: 6379)
           end
         end
       end

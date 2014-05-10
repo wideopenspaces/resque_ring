@@ -5,25 +5,30 @@ require 'resque_ring/redis_registry'
 module Resque
   module Plugins
     module ResqueRing
+      # A Resque plugin that reports job data back to ResqueRing
+      # to allow management of workers based on
+      # * Time to process (TTP)
+      # * Jobs processed
+      # * Memory usage
       module ManagedJob
-        @@registry = ::ResqueRing::RedisRegistry.new(Resque.redis.redis)
+        @registry = ::ResqueRing::RedisRegistry.new(Resque.redis.redis)
 
         # around_perform: measure & store TTP & total ttp
         # avg ttp is total_ttp / jobs_processed
-        def around_perform_measure_ttp(*args)
+        def around_perform_measure_ttp(*)
           ttp = Benchmark.realtime { yield }
-          @@registry.hset key, 'ttp', ttp
-          @@registry.hincrbyfloat key, 'total_ttp', ttp
+          @registry.hset key, 'ttp', ttp
+          @registry.hincrbyfloat key, 'total_ttp', ttp
         end
 
         # after_perform: increment jobs processed for this worker
-        def after_perform_increment_jobs_processed(*args)
-          @@registry.hincrby key, 'jobs_processed', 1
+        def after_perform_increment_jobs_processed(*)
+          @registry.hincrby key, 'jobs_processed', 1
         end
 
         # after_perform: get & store memory usage
-        def after_perform_get_rss(*args)
-          @@registry.hset key, 'mem_usage', rss
+        def after_perform_get_rss(*)
+          @registry.hset key, 'mem_usage', rss
         end
 
         private
@@ -36,7 +41,7 @@ module Resque
 
         # Generates a ResqueRing-formatted key for queue access
         def key
-          @@registry.send :_key, @worker_group, @@registry.localize(ppid)
+          @registry.send :_key, @worker_group, @registry.localize(ppid)
         end
 
         # Need to get PPID because of the forking.

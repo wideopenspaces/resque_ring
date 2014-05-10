@@ -18,3 +18,14 @@ require 'resque_ring/queue_group'
 require 'resque_ring/worker_group'
 require 'resque_ring/manager'
 require 'resque_ring/version'
+
+# A container for a few frequently accessed 'globals'
+module RR
+  @logger   = nil
+  @signals  = []
+
+  class << self
+    attr_accessor :logger
+    attr_accessor :signals
+  end
+end
