@@ -108,7 +108,7 @@ bundle exec resque_ring version
 
 You can control ResqueRing with POSIX signals.
 
-### Quit
+#### Quit
 
 Quit ResqueRing after cleaning up.
 
@@ -118,7 +118,7 @@ $ kill -INT <resque_ring_pid>
 
 `TERM` and `QUIT` also work splendidly.
 
-### Downsize
+#### Downsize
 
 Quit all workers cleanly, but leave everything running.
 Workers will respawn automatically.
