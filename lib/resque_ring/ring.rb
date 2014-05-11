@@ -66,9 +66,9 @@ module ResqueRing
     #   runs the appropriate method when a new event is
     #   detected
     def handle_signals
-      while (sig = ResqueRing.signals.shift)
+      while (sig = Globals.signals.shift)
         logger.debug "Got signal: #{sig}"
-        send(SIG_ACTS[sig]) if SIG_ACTS.keys?(sig)
+        send(SIG_ACTS[sig], '') if SIG_ACTS.keys?(sig)
       end
     end
 
@@ -116,7 +116,7 @@ module ResqueRing
     class << self
       def catch_signal(signal)
         puts "Caught signal #{signal}"
-        ResqueRing.signals << signal
+        Globals.signals << signal
       end
     end
   end

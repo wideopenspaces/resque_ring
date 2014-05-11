@@ -5,6 +5,7 @@ require 'resque_ring'
 require 'pry'
 
 require 'resque_ring/ring'
+require 'resque_ring/pid_file'
 
 module ResqueRing
   # The guts of the ResqueRing executable
@@ -24,8 +25,58 @@ module ResqueRing
                   type:       :string,
                   aliases:    '-l',
                   default:    './resque_ring.log'
+    method_option :pidfile,
+                  type:       :string,
+                  aliases:    '-p',
+                  default:    './resque_ring.pid'
     def start
+      PidFile.write options[:pidfile]
       ResqueRing::Ring.new(options)
+    end
+
+    desc 'stop', 'stop a running instance'
+    method_option :pidfile,
+                  type:     :string,
+                  aliases:  '-p',
+                  default:  './resque_ring.pid'
+    def stop
+      signal! 'INT', options[:pidfile]
+    end
+
+    desc 'reload', 'reload a running instance'
+    method_option :pidfile,
+                  type:     :string,
+                  aliases:  '-p',
+                  default:  './resque_ring.pid'
+    def reload
+      signal! 'HUP', options[:pidfile]
+    end
+
+    desc 'downsize', 'quit all existing workers'
+    method_option :pidfile,
+                  type:     :string,
+                  aliases:  '-p',
+                  default:  './resque_ring.pid'
+    def downsize
+      signal! 'USR1', options[:pidfile]
+    end
+
+    desc 'pause', 'pause a running instance'
+    method_option :pidfile,
+                  type:     :string,
+                  aliases:  '-p',
+                  default:  './resque_ring.pid'
+    def pause
+      signal! 'USR2', options[:pidfile]
+    end
+
+    desc 'continue', 'un-pause a running instance'
+    method_option :pidfile,
+                  type:     :string,
+                  aliases:  '-p',
+                  default:  './resque_ring.pid'
+    def continue
+      signal! 'CONT', options[:pidfile]
     end
 
     desc 'version', 'print version'
@@ -57,6 +108,10 @@ module ResqueRing
         statement  = "#{statement} [#{default}]"
         response   = ask(statement, *args)
         response.empty? ? default : response
+      end
+
+      def signal!(signal, pidfile)
+        PidFile.with_existing_pid(pidfile) { |pid| Process.kill(signal, pid) }
       end
     end
   end
