@@ -110,6 +110,7 @@ module ResqueRing
         response.empty? ? default : response
       end
 
+      # Sends a signal to an existing ResqueRing process.
       def signal!(signal, pidfile)
         PidFile.with_existing_pid(pidfile) { |pid| Process.kill(signal, pid) }
       end

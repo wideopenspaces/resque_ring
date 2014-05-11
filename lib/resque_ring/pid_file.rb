@@ -12,6 +12,7 @@ module ResqueRing
       yield(pid(pidfile)) if block_given? && pid(pidfile)
     rescue => e
       $stderr.puts "I'm sorry, Dave. I'm afraid I can't do that: #{e}"
+      false
     end
 
     def self.write(pidfile)
