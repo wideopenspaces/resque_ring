@@ -7,7 +7,7 @@ workers:
     spawner:
       command:
         - 'ruby -e sleep'
-      dir: /my/work/dir
+      dir: .
       env:
         rails_env: development
         rbenv_version: 1.9.3-p194

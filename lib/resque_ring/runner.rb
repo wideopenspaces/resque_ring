@@ -31,7 +31,7 @@ module ResqueRing
                   default:    './resque_ring.pid'
     def start
       PidFile.write options[:pidfile]
-      ResqueRing::Ring.new(options)
+      ResqueRing::Ring.new(options).run
     end
 
     desc 'stop', 'stop a running instance'

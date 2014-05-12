@@ -105,7 +105,7 @@ module ResqueRing
     def prepare_worker_groups(groups)
       groups.each do |name, options|
         @worker_groups[name] = WorkerGroup.new(
-        name, options.merge(manager: self))
+          name, options.merge(manager: self))
       end
     end
 
