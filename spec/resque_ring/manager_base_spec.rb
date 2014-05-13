@@ -87,6 +87,40 @@ describe ResqueRing::Manager do
           end
         end
 
+        describe '#pause!' do
+          it 'sets #paused? to true' do
+            mgr.pause!
+            mgr.paused?.must_equal(true)
+          end
+        end
+
+        describe '#continue!' do
+          before { mgr.pause! }
+
+          it 'sets #paused? to false' do
+            mgr.continue!
+            mgr.paused?.must_equal(false)
+          end
+        end
+
+        describe '#run!' do
+          context 'when paused? is true' do
+            before { mgr.pause! }
+
+            it 'does not call manage!' do
+              mgr.expects(:manage!).times(0)
+              mgr.run!
+            end
+          end
+
+          context 'when paused? is false' do
+            it 'calls manage!' do
+              mgr.expects(:manage!)
+              mgr.run!
+            end
+          end
+        end
+
         after do
           worker_groups.each_value { |wg| wg.verify }
         end
