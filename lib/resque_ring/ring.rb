@@ -16,11 +16,11 @@ module ResqueRing
       'QUIT'  => :retire!,
       'HUP'   => :reload!,
       'USR1'  => :downsize!,
-      'USR2'  => :pause!,
+      'STOP'  => :pause!,
       'CONT'  => :continue!
     }
 
-    intercept :int, :term, :quit, :hup, :usr1, :usr2, :cont,
+    intercept :int, :term, :quit, :hup, :usr1, :stop, :cont,
               with: :catch_signal
 
     attr_accessor :options, :manager, :retired

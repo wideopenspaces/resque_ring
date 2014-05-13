@@ -67,7 +67,7 @@ module ResqueRing
                   aliases:  '-p',
                   default:  './resque_ring.pid'
     def pause
-      signal! 'USR2', options[:pidfile]
+      signal! 'STOP', options[:pidfile]
     end
 
     desc 'continue', 'un-pause a running instance'
@@ -107,7 +107,7 @@ module ResqueRing
       def ask_with_default(statement, default, *args)
         statement  = "#{statement} [#{default}]"
         response   = ask(statement, *args)
-        response.empty? ? default : response
+        response || default
       end
 
       # Sends a signal to an existing ResqueRing process.

@@ -7,7 +7,7 @@ module ResqueRing
 
     def self.with_pid(pidfile)
       fail StandardError, "Pidfile is missing. Are you sure a ResqueRing
-        process is running?" unless File.exist?(pidfile)
+        process is running?" unless exist?(pidfile)
       yield(pid(pidfile)) if block_given? && pid(pidfile)
     rescue => e
       error "I'm sorry, Dave. I'm afraid I can't do that: #{e}"
@@ -28,6 +28,10 @@ module ResqueRing
 
     def self.pid(pidfile)
       @pid ||= File.open(pidfile).read.strip.to_i
+    end
+
+    def self.exist?(pidfile)
+      File.exist?(pidfile)
     end
 
     def self.error(message, critical = false)

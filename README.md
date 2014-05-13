@@ -140,7 +140,7 @@ $ kill -HUP <resque_ring_pid>
 Quit all workers and prevent them from respawning.
 
 ```bash
-$ kill -USR2 <resque_ring_pid>
+$ kill -STOP <resque_ring_pid>
 ```
 
 #### Continue
