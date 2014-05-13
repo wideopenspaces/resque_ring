@@ -30,7 +30,7 @@ module ResqueRing
                   aliases:    '-p',
                   default:    './resque_ring.pid'
     def start
-      PidFile.write options[:pidfile]
+      write_pidfile(options[:pidfile])
       ResqueRing::Ring.new(options).run
     end
 
@@ -112,7 +112,12 @@ module ResqueRing
 
       # Sends a signal to an existing ResqueRing process.
       def signal!(signal, pidfile)
-        PidFile.with_existing_pid(pidfile) { |pid| Process.kill(signal, pid) }
+        PidFile.with_pid(pidfile) { |pid| Process.kill(signal, pid) }
+      end
+
+      def write_pidfile(pidfile)
+        PidFile.write pidfile
+        at_exit { PidFile.clean pidfile }
       end
     end
   end
