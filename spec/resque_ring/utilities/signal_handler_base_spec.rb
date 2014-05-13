@@ -24,6 +24,19 @@ describe ResqueRing::Utilities::SignalHandler do
       DummyObject.expects(:signal_handler).with('INT').returns('INT')
       Process.kill('INT', Process.pid)
     end
+
+    context 'given a bad signal' do
+      let(:badwolf) { 'BDWF' }
+      let(:badsig)  { badwolf.downcase.to_sym }
+
+      it 'warns that signal is unsupported' do
+        error = "Signal (#{badwolf}) is not supported. Sorry, ol' chap."
+        DummyObject.expects(:warn).with(error)
+
+        DummyObject.send(:intercept, badwolf.downcase.to_sym,
+                         with: :signal_handler)
+      end
+    end
   end
 
   context '.intercepts' do
