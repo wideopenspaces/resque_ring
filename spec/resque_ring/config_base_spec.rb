@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe ResqueRing::Config do
+  parallelize_me!
+
   context 'a new Config' do
     context 'given a valid config file' do
       # Complete config

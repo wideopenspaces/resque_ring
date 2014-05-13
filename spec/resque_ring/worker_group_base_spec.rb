@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe ResqueRing::WorkerGroup do
+  parallelize_me!
+  
   let(:mgr)     { ResqueRing::Manager.new({}) }
   let(:options) { Hash.new.merge(manager: mgr) }
   subject       { ResqueRing::WorkerGroup.new('indexing', options) }

@@ -2,8 +2,9 @@ require 'spec_helper'
 require 'benchmark'
 
 describe ResqueRing::Ring do
+  parallelize_me!
+
   context 'a new Ring' do
-    # let(:config)  { './spec/support/config_with_delay.yml' }
     let(:ring)    { ResqueRing::Ring.new({}) }
     let(:manager) { ResqueRing::Manager.new }
 
@@ -152,6 +153,10 @@ describe ResqueRing::Ring do
         ResqueRing::Ring.catch_signal('INT')
         ResqueRing::Globals.signals.must_include 'INT'
       end
+    end
+
+    after do
+      ResqueRing::Manager.unstub(:new)
     end
   end
 end

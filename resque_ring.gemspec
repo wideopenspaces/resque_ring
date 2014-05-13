@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'bundler', '~> 1.3'
   s.add_development_dependency 'rake'
+  s.add_development_dependency 'fakefs'
   s.add_development_dependency 'guard'
   s.add_development_dependency 'guard-minitest'
   s.add_development_dependency 'minitest', '~> 5.0.0'

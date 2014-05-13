@@ -17,6 +17,8 @@ def prep_queues(queues = {})
 end
 
 describe ResqueRing::QueueGroup do
+  parallelize_me!
+
   let(:store)   { HashQueueStore.new }
   let(:queue_a) { ResqueRing::Queue.new(name: 'queue_a', store: store) }
   let(:queue_b) { ResqueRing::Queue.new(name: 'queue_b', store: store) }

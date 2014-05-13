@@ -2,6 +2,8 @@ require 'spec_helper'
 require './spec/support/hash_queue_store'
 
 describe ResqueRing::Queue do
+  parallelize_me!
+
   let(:mgr)     { ResqueRing::Manager.new({}) }
   let(:options) { Hash.new.merge(manager: mgr) }
   let(:store)   { HashQueueStore.new }

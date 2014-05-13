@@ -1,12 +1,17 @@
 require 'spec_helper'
+require 'fakefs/safe'
+
 include Mocha::ParameterMatchers
 
 describe ResqueRing::PidFile do
+  parallelize_me!
+
   let(:file)  { 'resque_ring.test.pid' }
   let(:pid)   { 21121 }
   let(:pidfile) { ResqueRing::PidFile }
 
   before do
+    FakeFS.activate!
     Process.stubs(:pid).returns(pid)
   end
 
@@ -80,4 +85,6 @@ describe ResqueRing::PidFile do
       pidfile.error(msg).must_equal(false)
     end
   end
+
+  after { Process.unstub(:pid); FakeFS.deactivate! }
 end

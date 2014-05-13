@@ -2,25 +2,25 @@
 
 module ResqueRing
   # Methods dealing with pidfile management
-  class PidFile < File
+  class PidFile
     @pid = nil
 
     def self.with_pid(pidfile)
       fail StandardError, "Pidfile is missing. Are you sure a ResqueRing
-        process is running?" unless exists?(pidfile)
+        process is running?" unless File.exist?(pidfile)
       yield(pid(pidfile)) if block_given? && pid(pidfile)
     rescue => e
       error "I'm sorry, Dave. I'm afraid I can't do that: #{e}"
     end
 
     def self.write(pidfile)
-      open(pidfile, 'w') { |f| f.write(Process.pid) }
+      File.open(pidfile, 'w') { |f| f.write(Process.pid) }
     rescue => e
       error "Error writing pidfile: #{e.class}: #{e}", true
     end
 
     def self.clean(pidfile)
-      delete pidfile
+      File.delete pidfile
     rescue
       error "Problem deleting pidfile '#{pidfile}'.
         Please delete it yourself.", true

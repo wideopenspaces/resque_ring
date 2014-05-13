@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe ResqueRing::Manager do
+  parallelize_me!
+
   context 'a new instance' do
     context 'with no options specified' do
       let(:mgr) { ResqueRing::Manager.new }

@@ -8,6 +8,8 @@ def redis_do(action, key_values)
 end
 
 describe ResqueRing::RedisRegistry do
+  parallelize_me!
+
   let(:registry)    { ResqueRing::RedisRegistry.new(Redis.new) }
   let(:prefix)      { "#{ResqueRing::RedisRegistry::PREFIX}:test" }
 
