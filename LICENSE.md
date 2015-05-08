@@ -1,4 +1,4 @@
-Copyright (c) 2013 Jacob Stetser
+Copyright (c) 2013-2014 Jacob Stetser
 
 MIT License
 

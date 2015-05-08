@@ -1,20 +1,16 @@
+# encoding: utf-8
+
 require 'thor'
 require 'resque_ring'
 require 'pry'
 
-require 'resque_ring/utilities/signal_handler'
+require 'resque_ring/ring'
+require 'resque_ring/pid_file'
 
 module ResqueRing
   # The guts of the ResqueRing executable
   class Runner < Thor
     include Thor::Actions
-    extend ResqueRing::Utilities::SignalHandler
-
-    intercept :int, :term, :quit, with: :retire!
-    intercepts hup: :reload!,
-      usr1: :downsize!,
-      usr2: :pause,
-      cont: :unpause
 
     map '-v' => :version
     map '-i' => :install
@@ -22,43 +18,107 @@ module ResqueRing
 
     desc 'start', 'start a resque_ring'
     method_option :config,
-      required:   true,
-      type:       :string,
-      aliases:    '-c'
+                  required: true,
+                  type:     :string,
+                  aliases:  '-c'
     method_option :logfile,
-      type:       :string,
-      aliases:    '-l',
-      default:    './resque_ring.log'
+                  type:       :string,
+                  aliases:    '-l',
+                  default:    './resque_ring.log'
+    method_option :pidfile,
+                  type:       :string,
+                  aliases:    '-p',
+                  default:    './resque_ring.pid'
     def start
-      @@manager = ResqueRing::Manager.new(options)
-      at_exit { @@manager.retire! }
-
-      loop { @@manager.run! }
+      write_pidfile(options[:pidfile])
+      ResqueRing::Ring.new(options).run
     end
 
-    # desc 'install', 'install a sample config file'
-    # def install
-    #   location    = ask_with_default('Where do you want to put the config file?', 'resque_ring.yml')
-    #   redis_host  = ask_with_default('On what host is redis running?', 'localhost')
-    #   redis_port  = ask_with_default('On what port is redis running?', 6379)
-    #   delay       = ask_with_default('How many seconds should we wait between runs?', 60)
-    # end
+    desc 'stop', 'stop a running instance'
+    method_option :pidfile,
+                  type:     :string,
+                  aliases:  '-p',
+                  default:  './resque_ring.pid'
+    def stop
+      signal! 'INT', options[:pidfile]
+    end
+
+    desc 'reload', 'reload a running instance'
+    method_option :pidfile,
+                  type:     :string,
+                  aliases:  '-p',
+                  default:  './resque_ring.pid'
+    def reload
+      signal! 'HUP', options[:pidfile]
+    end
+
+    desc 'downsize', 'quit all existing workers'
+    method_option :pidfile,
+                  type:     :string,
+                  aliases:  '-p',
+                  default:  './resque_ring.pid'
+    def downsize
+      signal! 'USR1', options[:pidfile]
+    end
+
+    desc 'pause', 'pause a running instance'
+    method_option :pidfile,
+                  type:     :string,
+                  aliases:  '-p',
+                  default:  './resque_ring.pid'
+    def pause
+      signal! 'STOP', options[:pidfile]
+    end
+
+    desc 'continue', 'un-pause a running instance'
+    method_option :pidfile,
+                  type:     :string,
+                  aliases:  '-p',
+                  default:  './resque_ring.pid'
+    def continue
+      signal! 'CONT', options[:pidfile]
+    end
 
     desc 'version', 'print version'
     def version
       say ResqueRing::VERSION, :green
     end
 
-    private
+    # TODO: Add generator for starter config file
+    # desc 'install', 'install a sample config file'
+    # def install
+    #   location    = ask_with_default(
+    #     'Where do you want to put the config file?', 'resque_ring.yml')
+    #   redis_host  = ask_with_default(
+    #     'On what host is redis running?', 'localhost')
+    #   redis_port  = ask_with_default('On what port is redis running?', 6379)
+    #   delay       = ask_with_default(
+    #     'How many seconds should we wait between runs?', 60)
+    # end
 
-    def ask_with_default(statement, default, *args)
-      statement = "#{statement} [#{default}]"
-      response = ask(statement, *args)
-      response.empty? ? default : response
-    end
+    ## HELPER METHODS
 
-    def self.retire!(signal = 'kill signal')
-      exit
+    no_commands do
+      # Asks for a response with a default value
+      # if the response is empty
+      # @param statement [String] the question to be asked
+      # @param default [Object] the default value
+      # return [Object] the response or the default value
+      def ask_with_default(statement, default, *args)
+        statement  = "#{statement} [#{default}]"
+        response   = ask(statement, *args)
+        response || default
+      end
+
+      # Sends a signal to an existing ResqueRing process.
+      def signal!(signal, pidfile)
+        PidFile.with_pid(pidfile) { |pid| Process.kill(signal, pid) }
+      end
+
+      def write_pidfile(pidfile)
+        PidFile.write pidfile
+        at_exit { PidFile.clean pidfile }
+      end
     end
   end
 end

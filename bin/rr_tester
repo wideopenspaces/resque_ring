@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+# encoding: utf-8
+
+require 'thor'
+require 'resque'
+require_relative '../lib/resque_ring'
+require_relative '../lib/resque/plugins/resque_ring/managed_job'
+require_relative '../lib/bin/resque_emptier'
+require_relative '../lib/bin/resque_filler'
+
+Resque.redis = 'localhost:6379'
+
+# a CLI application to ease development
+# enables:
+# * emptying redis
+# * filling the queue
+# * starting ResqueRing
+class RRTester < Thor
+  include Thor::Actions
+
+  desc 'fill', 'fill the queue'
+  method_option :config,
+                required:   true,
+                type:       :string,
+                aliases:    '-c'
+  def fill
+    trap('HUP') { start_server }
+
+    empty_redis if empty_redis?
+    fill_queue if ask_size
+
+    start_server if start_server?
+  end
+
+  desc 'empty', 'start a simple client'
+  method_option :queue,
+                required:   true,
+                type:       :string,
+                aliases:    '-q'
+  def empty
+    queue = options[:queue]
+
+    Resque::Worker.new(queue).work
+  end
+
+  private
+
+  def empty_redis?
+    ask('Reset redis? (Warning! DELETES WHOLE REDIS DB!)')
+  end
+
+  def empty_redis
+    Resque.redis.flushdb
+  end
+
+  def ask_size
+    @size = ask('How many queue items would you like to add?')
+  end
+
+  def fill_queue
+    ResqueFiller.fill(@size.to_i)
+  end
+
+  def start_server
+    say 'Maximizing widget pipeline...', :yellow
+    say 'Initiating imminent actualization...', :green
+    ResqueRing::Runner.start(['start'] + ARGV[1..-1])
+  end
+
+  def start_server?
+    @manage = yes?('Start the manager?', :red)
+  end
+end
+
+RRTester.start(ARGV)

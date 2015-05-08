@@ -1,3 +1,4 @@
+# A lightweight Redis stand-in for testing purposes
 class HashQueueStore
   attr_reader :queues
 

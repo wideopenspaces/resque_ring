@@ -1,13 +1,9 @@
-redis:
-  host: 127.0.0.1
-  port: 6379
-delay: 60
 workers:
   indexing:
     spawner:
       command:
         - 'ruby -e sleep'
-      dir: .
+      dir: /my/work/dir
       env:
         rails_env: development
         rbenv_version: 1.9.3-p194

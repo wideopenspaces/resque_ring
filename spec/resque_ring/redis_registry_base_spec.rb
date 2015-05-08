@@ -8,6 +8,8 @@ def redis_do(action, key_values)
 end
 
 describe ResqueRing::RedisRegistry do
+  parallelize_me!
+
   let(:registry)    { ResqueRing::RedisRegistry.new(Redis.new) }
   let(:prefix)      { "#{ResqueRing::RedisRegistry::PREFIX}:test" }
 
@@ -32,7 +34,8 @@ describe ResqueRing::RedisRegistry do
     before { registry.register('test', '1234', {}) }
 
     it 'adds the worker to worker_list' do
-      registry.list('test', 'worker_list').must_include("#{registry.host}:1234")
+      list = registry.list('test', 'worker_list')
+      list.must_include("#{registry.host}:1234")
     end
 
     it 'increases the worker count' do
@@ -59,7 +62,8 @@ describe ResqueRing::RedisRegistry do
     end
 
     it 'removes the worker from the worker list' do
-      registry.list('test', 'worker_list').wont_include("#{registry.host}:1234")
+      list = registry.list('test', 'worker_list')
+      list.wont_include("#{registry.host}:1234")
     end
   end
 

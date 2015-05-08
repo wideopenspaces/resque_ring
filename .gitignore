@@ -1,6 +1,7 @@
 *.gem
 *.rbc
 *.log
+*.pid
 .bundle
 .config
 coverage
@@ -18,3 +19,4 @@ tmp
 _yardoc
 doc/
 Gemfile.lock
+.ruby-version

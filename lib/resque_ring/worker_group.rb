@@ -1,6 +1,11 @@
+# encoding: utf-8
+
 module ResqueRing
-  # A managed group of workers and methods for spawning and tracking their status
+  # A managed group of workers and methods for spawning
+  #   and tracking their status
   class WorkerGroup
+    include Globals
+
     extend HattrAccessor
 
     # @return [String] name of the WorkerGroup
@@ -53,24 +58,19 @@ module ResqueRing
 
     # Instructs a {Pool} to manage its workers
     def manage!
+      logger.info(
+        "Items remaining in this WorkerGroup's queue: #{queues.size}")
       pool.manage!
     end
 
     # Instructs a {Pool} to shut down all of its workers
-    def retire!
-      Utilities::Logger.info "downsizing the worker group: #{name}"
+    def downsize!
       pool.downsize
     end
 
     # @return [Pool] the pool of workers for this WorkerGroup
     def pool
       @pool ||= ResqueRing::Pool.new(@options[:pool].merge(worker_group: self))
-    end
-
-    # @return [Registry] the {Registry} associated with this
-    #   WorkerGroup's {Manager}
-    def registry
-      manager.registry
     end
 
     # @return [Array] an array of strings for building the
@@ -86,7 +86,9 @@ module ResqueRing
     # @return [Array] an array of strings used by
     #   the {Pool} when spawning a {Worker}
     def spawner
-      spawn_command.map { |c| c.gsub('{{queues}}', "QUEUES=#{queues.names.join(',')}") }
+      spawn_command.map do |c|
+        c.gsub('{{queues}}', "QUEUES=#{queues.names.join(',')}")
+      end
     end
 
     # @return [Boolean] true if total items in all queues

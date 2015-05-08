@@ -1,10 +1,13 @@
+# encoding: utf-8
+
 require 'childprocess'
 
 module ResqueRing
   # A managed worker process
   class Worker
+    include Globals
     extend Forwardable
-    def_delegators :process, :pid, :alive?, :exited?
+    def_delegators :@process, :pid, :alive?, :exited?
 
     # @return [Pool] {Pool} that owns this Worker
     attr_reader :pool
@@ -31,6 +34,10 @@ module ResqueRing
       build!
     end
 
+    def inspect
+      "resque-ring worker (#{object_id})"
+    end
+
     # Instructs a worker to start its process
     def start!
       process.start
@@ -38,31 +45,33 @@ module ResqueRing
 
     # Instructs a worker to die
     def stop!
-      Utilities::Logger.info "stopping worker #{pid}"
-      process.stop
+      logger.info "stopping worker #{pid}"
+      process.stop(20) # Give worker some time to stop.
+      # TODO: Move stop timeout to the config?
     end
 
     private
 
     def build!
       @process = @process_mgr.build(*options[:spawner])
+      process.leader = true
 
-      set_working_dir(options[:cwd])
-      set_environment(options[:env])
+      working_dir(options[:cwd])
+      environment(options[:env])
     end
 
     def reset_env!
       ENV.keys.each { |key| process.environment[key] = nil }
     end
 
-    def set_environment(env)
+    def environment(env)
       return unless env && env.size > 0
 
       reset_env!
       env.each { |k, v| process.environment[k.upcase] = v } unless env.empty?
     end
 
-    def set_working_dir(cwd)
+    def working_dir(cwd)
       process.cwd = cwd if cwd
     end
   end

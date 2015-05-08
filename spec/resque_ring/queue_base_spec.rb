@@ -2,6 +2,8 @@ require 'spec_helper'
 require './spec/support/hash_queue_store'
 
 describe ResqueRing::Queue do
+  parallelize_me!
+
   let(:mgr)     { ResqueRing::Manager.new({}) }
   let(:options) { Hash.new.merge(manager: mgr) }
   let(:store)   { HashQueueStore.new }
@@ -19,7 +21,8 @@ describe ResqueRing::Queue do
 
   describe '#inspect' do
     it 'returns a simple representation of the object' do
-      subject.inspect.must_equal("Queue:#{subject.object_id}:#{subject.name}:#{subject.size}")
+      subject.inspect.must_equal(
+        "Queue:#{subject.object_id}:#{subject.name}:#{subject.size}")
     end
   end
 

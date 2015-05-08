@@ -7,16 +7,18 @@ def qstore(queue_values = {})
   end
 end
 
-def set_queues(*queues)
+def add_queues(*queues)
   qg.instance_variable_set('@queues', queues)
 end
 
 def prep_queues(queues = {})
   qstore queues
-  set_queues queue_a, queue_b
+  add_queues queue_a, queue_b
 end
 
 describe ResqueRing::QueueGroup do
+  parallelize_me!
+
   let(:store)   { HashQueueStore.new }
   let(:queue_a) { ResqueRing::Queue.new(name: 'queue_a', store: store) }
   let(:queue_b) { ResqueRing::Queue.new(name: 'queue_b', store: store) }
@@ -24,10 +26,10 @@ describe ResqueRing::QueueGroup do
 
   context 'a new QueueGroup' do
     context 'given a list of queues' do
-      subject { ResqueRing::QueueGroup.new('queue_1', 'queue_2') }
+      subject { ResqueRing::QueueGroup.new(*%w(queue_1 queue_2)) }
 
       it 'creates and stores the queues' do
-        subject.map(&:to_s).must_equal(['queue_1', 'queue_2'])
+        subject.map(&:to_s).must_equal(%w(queue_1 queue_2))
       end
 
       it 'creates a Queue object for each queue' do
@@ -37,11 +39,11 @@ describe ResqueRing::QueueGroup do
   end
 
   describe '#names' do
-    before { set_queues queue_a, queue_b }
+    before { add_queues queue_a, queue_b }
     subject { qg.names }
 
     it 'returns an array of strings containing the queue names' do
-      subject.must_equal ['queue_a', 'queue_b']
+      subject.must_equal %w(queue_a queue_b)
     end
   end
 

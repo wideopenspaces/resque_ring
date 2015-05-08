@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe ResqueRing::Manager do
+  parallelize_me!
+
   context 'a new instance' do
     context 'with no options specified' do
       let(:mgr) { ResqueRing::Manager.new }
@@ -70,38 +72,57 @@ describe ResqueRing::Manager do
           end
         end
 
-        describe '#retire' do
+        describe '#downsize!' do
           let(:wkgrp)         { MiniTest::Mock.new }
           let(:wkgrp_two)     { MiniTest::Mock.new }
           let(:worker_groups) { { 'test' => wkgrp, 'me' => wkgrp_two } }
 
           before do
             mgr.instance_variable_set(:@worker_groups, worker_groups)
-            worker_groups.each_value { |wg| wg.expect(:retire!, true) }
+            worker_groups.each_value { |wg| wg.expect(:downsize!, true) }
           end
 
-          it 'tells each worker group to retire!' do
-            mgr.retire!
+          it 'tells each worker group to downsize!' do
+            mgr.downsize!
+          end
+        end
+
+        describe '#pause!' do
+          it 'sets #paused? to true' do
+            mgr.pause!
+            mgr.paused?.must_equal(true)
+          end
+        end
+
+        describe '#continue!' do
+          before { mgr.pause! }
+
+          it 'sets #paused? to false' do
+            mgr.continue!
+            mgr.paused?.must_equal(false)
+          end
+        end
+
+        describe '#run!' do
+          context 'when paused? is true' do
+            before { mgr.pause! }
+
+            it 'does not call manage!' do
+              mgr.expects(:manage!).times(0)
+              mgr.run!
+            end
+          end
+
+          context 'when paused? is false' do
+            it 'calls manage!' do
+              mgr.expects(:manage!)
+              mgr.run!
+            end
           end
         end
 
         after do
           worker_groups.each_value { |wg| wg.verify }
-        end
-      end
-
-      describe '#run' do
-        before do
-          mgr.expects(:manage!).returns(true)
-          mgr.expects(:sleep).with(mgr.delay)
-        end
-
-        it 'calls #manage' do
-          mgr.run!
-        end
-
-        it 'calls sleep with the appropriate delay' do
-          mgr.run!
         end
       end
     end

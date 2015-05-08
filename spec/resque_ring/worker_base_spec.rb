@@ -12,10 +12,21 @@ describe ResqueRing::Worker do
         subject.pool.must_equal pool
       end
 
+      describe '#inspect' do
+        it 'returns a string representation' do
+          expected = "resque-ring worker (#{worker.object_id})"
+          worker.inspect.must_equal(expected)
+        end
+      end
+
       context 'with a spawner given' do
-        let(:args)    { ['ruby', '-e', 'sleep'] }
-        let(:worker)  { ResqueRing::Worker.new(pool: pool, spawner: args, env: { rails_env: 'test' }) }
+        let(:args)    { %w(ruby -e sleep) }
         let(:process) { ChildProcess.new }
+
+        let(:worker)  do
+          ResqueRing::Worker.new(
+            pool: pool, spawner: args, env: { rails_env: 'test' })
+        end
 
         before do
           ChildProcess.expects(:build).with(*args).returns(process)

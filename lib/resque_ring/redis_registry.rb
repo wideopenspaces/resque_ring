@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module ResqueRing
   # Methods for storing and retrieving ResqueRing information via Redis
   class RedisRegistry
@@ -9,7 +11,8 @@ module ResqueRing
     def_delegators :@redis, :get, :set, :sadd, :srem, :incr, :decr
     def_delegators :@redis, :hget, :hset, :hincrby, :hincrbyfloat
 
-    # @param redis_instance [Redis] a Redis instance, or something entirely compatible
+    # @param redis_instance [Redis] a Redis instance,
+    #   or something entirely compatible
     def initialize(redis_instance)
       @redis = redis_instance
     end
@@ -31,9 +34,9 @@ module ResqueRing
     #   this information comes from {WorkerGroup#wait_time}
     def register(name, pid, options = {})
       atomically do |multi|
-        multi.sadd  _key(name, 'worker_list'), localize(pid)
-        multi.incr  _key(name, 'worker_count')
-        multi.set   _key(name, 'last_spawned'), Time.now.utc
+        multi.sadd _key(name, 'worker_list'), localize(pid)
+        multi.incr _key(name, 'worker_count')
+        multi.set _key(name, 'last_spawned'), Time.now.utc
         multi.setex _key(name, 'spawn_blocked'), options.fetch(:delay, 120), 1
       end
     end
@@ -45,8 +48,8 @@ module ResqueRing
     # @param pid  [Integer] the the PID of the {Worker} process
     def deregister(name, pid)
       atomically do |multi|
-        multi.decr  _key(name, 'worker_count')
-        multi.srem  _key(name, 'worker_list'), localize(pid)
+        multi.decr _key(name, 'worker_count')
+        multi.srem _key(name, 'worker_list'), localize(pid)
       end
     end
 
@@ -67,8 +70,9 @@ module ResqueRing
     end
 
     # Perform operations within block in a Redis transaction
-    # @yieldparam multi [Redis::Multi] a Redis.multi context (for atomic operations)
-    def atomically(&block)
+    # @yieldparam multi [Redis::Multi] a Redis.multi context
+    #   (for atomic operations)
+    def atomically
       @redis.multi { |multi| yield multi }
     end
 
